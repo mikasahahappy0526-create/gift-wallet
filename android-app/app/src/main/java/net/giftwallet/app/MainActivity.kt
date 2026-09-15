@@ -583,6 +583,13 @@ class MainActivity : AppCompatActivity() {
             if (u.isEmpty()) return true
             return isUrlCharged(u)
         }
+
+        @JavascriptInterface
+        fun clearChargeQueue() {
+            runOnUiThread {
+                chargeQueue.clear()
+            }
+        }
     }
 
     private fun loadErrorArray(): JSONArray {
@@ -769,6 +776,12 @@ class MainActivity : AppCompatActivity() {
               if (window.__gwHelpersQuick) return;
               window.__gwHelpersQuick = true;
 
+              try {
+                if (location.hash && location.hash.indexOf('auto-new-session') >= 0) {
+                  window.__gwWantGiftArm = true;
+                }
+              } catch (e) {}
+
               function clearHash(){
                 try {
                   if (location.hash && location.hash.indexOf('auto-new-session') >= 0) {
@@ -871,6 +884,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     var btn = document.querySelector('button[data-action="new-qr"]:not([disabled])');
                     if (btn) {
+                      try { window.__gwWantGiftArm = true; } catch (e) {}
                       clearHash();
                       btn.click();
                       return;
@@ -892,6 +906,31 @@ class MainActivity : AppCompatActivity() {
             (function(){
               if (window.__gwHomeInject) return;
               window.__gwHomeInject = true;
+
+              function injectErrorUserIdsBackBtn(){
+                try {
+                  var href = String(location.href || '');
+                  var path = String(location.pathname || '');
+                  if (href.indexOf('error-userids') < 0 && path.indexOf('error-userids') < 0) return;
+                  if (document.getElementById('gw-back-btn')) return;
+                  var btn = document.createElement('a');
+                  btn.id = 'gw-back-btn';
+                  btn.href = 'https://gift-wallet.pages.dev/?nosplash=1';
+                  btn.textContent = '← ギフトウォレット';
+                  btn.setAttribute('style', [
+                    'position:fixed','left:12px','bottom:18px','z-index:2147483647',
+                    'background:#d4a843','color:#111','font-weight:800','font-size:13px',
+                    'text-decoration:none','padding:10px 14px','border-radius:999px',
+                    'box-shadow:0 4px 16px rgba(0,0,0,.35)','font-family:system-ui,sans-serif',
+                    'letter-spacing:.02em','-webkit-tap-highlight-color:transparent'
+                  ].join(';'));
+                  (document.body || document.documentElement).appendChild(btn);
+                } catch (e) {}
+              }
+              injectErrorUserIdsBackBtn();
+              setTimeout(injectErrorUserIdsBackBtn, 500);
+              setTimeout(injectErrorUserIdsBackBtn, 1500);
+
               function pushBalance(){
                 try {
                   if (window.GiftWallet && window.GiftWallet.getWalletBalance) {
@@ -929,7 +968,7 @@ class MainActivity : AppCompatActivity() {
               setTimeout(rewrite, 1500);
               setInterval(pushBalance, 2000);
               try {
-                var mo = new MutationObserver(function(){ rewrite(); });
+                var mo = new MutationObserver(function(){ rewrite(); injectErrorUserIdsBackBtn(); });
                 mo.observe(document.documentElement, { childList:true, subtree:true });
               } catch (e) {}
             })();
@@ -1364,6 +1403,16 @@ private val VATON_BALANCE_JS = """
               window.__gwCushinGift = true;
               var seen = {};
               var fetchTried = {};
+              var doneIds = {};
+              var knownStatus = {};
+              var pendingWatch = {};
+              var historicalSuccess = {};
+              var baselineIds = {};
+              var baselineReady = false;
+              var watchArmed = false;
+              var armTime = 0;
+              var wantArm = false;
+              var armReason = '';
 
               function toast(msg){
                 try {
@@ -1373,8 +1422,8 @@ private val VATON_BALANCE_JS = """
 
               function isGiftUrl(u){
                 try {
-                  var s = String(u || '');
-                  if (s.indexOf('http') !== 0) return false;
+                  var s = String(u || '').trim();
+                  if (!s || s.indexOf('http') !== 0) return false;
                   var low = s.toLowerCase();
                   return low.indexOf('giftee') >= 0 || low.indexOf('g4b.') >= 0 ||
                     low.indexOf('eraberu') >= 0 || low.indexOf('giftee_boxes') >= 0 ||
@@ -1391,11 +1440,75 @@ private val VATON_BALANCE_JS = """
                 return !!seen[url];
               }
 
+              function isSuccessStatus(status){
+                var s = String(status || '').toLowerCase();
+                return s === 'success' || s === 'completed' || s.indexOf('success') >= 0;
+              }
+
+              function isWaitingStatus(status){
+                var s = String(status || '').toLowerCase();
+                return s.indexOf('waiting') >= 0 || s.indexOf('waiting_qr') >= 0 ||
+                  s.indexOf('scan') >= 0 || s.indexOf('pending') >= 0 ||
+                  s.indexOf('qr') >= 0;
+              }
+
+              function itemTimestampMs(item){
+                try {
+                  var raw = item.updated_at || item.updatedAt || item.completed_at ||
+                    item.created_at || item.createdAt || item.at || '';
+                  if (!raw) return 0;
+                  var t = Date.parse(String(raw));
+                  return isNaN(t) ? 0 : t;
+                } catch (e) { return 0; }
+              }
+
+              function markBaselineFromKnown(){
+                for (var id in knownStatus) {
+                  if (!Object.prototype.hasOwnProperty.call(knownStatus, id)) continue;
+                  baselineIds[id] = 1;
+                  if (isSuccessStatus(knownStatus[id])) historicalSuccess[id] = 1;
+                }
+              }
+
+              function finishBaseline(){
+                if (baselineReady) return;
+                baselineReady = true;
+                markBaselineFromKnown();
+                tryArm();
+              }
+
+              function armWatch(reason){
+                if (watchArmed) return;
+                watchArmed = true;
+                armTime = Date.now();
+                markBaselineFromKnown();
+                try {
+                  if (window.GiftWallet && window.GiftWallet.clearChargeQueue) {
+                    window.GiftWallet.clearChargeQueue();
+                  }
+                } catch (e) {}
+                try { console.log('[gw] gift watch armed:', reason || ''); } catch (e) {}
+              }
+
+              function requestArm(reason){
+                wantArm = true;
+                if (reason) armReason = reason;
+                tryArm();
+              }
+
+              function tryArm(){
+                if (watchArmed) return;
+                if (!wantArm) return;
+                if (!baselineReady) return;
+                armWatch(armReason || 'requested');
+              }
+
               function processLinks(links){
+                if (!watchArmed) return;
                 if (!links || !links.length) return;
                 for (var i = 0; i < links.length; i++) {
                   var url = String(links[i] || '').trim();
-                  if (!isGiftUrl(url)) continue;
+                  if (!url || !isGiftUrl(url)) continue;
                   if (seen[url] || alreadyCharged(url)) continue;
                   seen[url] = true;
                   try {
@@ -1414,22 +1527,81 @@ private val VATON_BALANCE_JS = """
                 }
               }
 
+              function shouldProcessSuccess(item){
+                if (!watchArmed) return false;
+                var id = item && item.id != null ? String(item.id) : '';
+                if (id && doneIds[id]) return false;
+                if (id && historicalSuccess[id]) return false;
+                if (id && pendingWatch[id]) return true;
+                var ts = itemTimestampMs(item);
+                if (ts && armTime && ts >= armTime - 2000) return true;
+                if (id && !baselineIds[id]) return true;
+                return false;
+              }
+
+              function noteItemStatus(item){
+                try {
+                  if (!item || typeof item !== 'object') return;
+                  var id = item.id != null ? String(item.id) : '';
+                  if (!id) return;
+                  var status = String(item.status || item.state || item.result || item.status_group || '');
+                  var prev = knownStatus[id];
+                  knownStatus[id] = status;
+                  if (!baselineReady) {
+                    baselineIds[id] = 1;
+                    if (isSuccessStatus(status)) historicalSuccess[id] = 1;
+                    return;
+                  }
+                  if (!watchArmed) {
+                    if (isSuccessStatus(status)) historicalSuccess[id] = 1;
+                    else {
+                      pendingWatch[id] = 1;
+                      if (!baselineIds[id] && isWaitingStatus(status)) {
+                        requestArm('new-waiting');
+                      }
+                    }
+                    return;
+                  }
+                  // armed
+                  if (!isSuccessStatus(status)) {
+                    pendingWatch[id] = 1;
+                    if (!baselineIds[id] && isWaitingStatus(status)) {
+                      // already armed; just track
+                    }
+                  } else if (prev && !isSuccessStatus(prev)) {
+                    pendingWatch[id] = 1;
+                  }
+                } catch (e) {}
+              }
+
               function lookItem(item){
                 try {
                   if (!item || typeof item !== 'object') return;
+                  noteItemStatus(item);
                   var status = String(item.status || item.state || item.result || item.status_group || '').toLowerCase();
-                  var ok = status === 'success' || status === 'completed' || status.indexOf('success') >= 0;
+                  var ok = isSuccessStatus(status);
+                  if (!ok) return;
+                  if (!shouldProcessSuccess(item)) return;
+
+                  var id = item.id != null ? String(item.id) : '';
                   var links = item.links || item.gift_links || item.giftLinks || item.gift_urls || [];
                   if (links && typeof links === 'string') links = [links];
-                  if (ok && links && links.length) {
-                    processLinks(links);
+                  var usable = [];
+                  if (links && links.length) {
+                    for (var i = 0; i < links.length; i++) {
+                      var u = String(links[i] || '').trim();
+                      if (isGiftUrl(u)) usable.push(u);
+                    }
+                  }
+                  if (usable.length) {
+                    if (id) doneIds[id] = 1;
+                    processLinks(usable);
                     return;
                   }
-                  if (ok && item.id && !fetchTried[item.id]) {
-                    fetchTried[item.id] = 1;
-                    // Prefer UI button; also try same-origin SPA API with logged-in token
-                    setTimeout(function(){ clickFetchForId(item.id); }, 200);
-                    setTimeout(function(){ apiFetchLinks(item.id); }, 600);
+                  if (id && !fetchTried[id]) {
+                    fetchTried[id] = 1;
+                    setTimeout(function(){ clickFetchForId(id); }, 200);
+                    setTimeout(function(){ apiFetchLinks(id); }, 600);
                   }
                 } catch (e) {}
               }
@@ -1443,16 +1615,28 @@ private val VATON_BALANCE_JS = """
                       if (data[i] && data[i].item) lookItem(data[i].item);
                       if (data[i] && data[i].task_item) lookItem(data[i].task_item);
                     }
+                    if (!baselineReady && data.length) finishBaseline();
                     return;
                   }
                   if (typeof data !== 'object') return;
                   lookItem(data);
-                  if (data.links && Array.isArray(data.links)) processLinks(data.links);
+                  // Only process top-level links after arm and only if not a bare history dump
+                  if (watchArmed && data.links && Array.isArray(data.links) && shouldProcessLooseLinks(data)) {
+                    processLinks(data.links);
+                  }
                   var keys = ['tasks','items','sessions','data','results','list','task_items','details'];
                   for (var k = 0; k < keys.length; k++) {
                     if (data[keys[k]]) scanPayload(data[keys[k]]);
                   }
                 } catch (e) {}
+              }
+
+              function shouldProcessLooseLinks(data){
+                // gift-links API responses are OK; avoid treating history list wrappers as new gifts
+                try {
+                  if (data && (data.task_item_id || data.item_id || data.id)) return true;
+                } catch (e) {}
+                return false;
               }
 
               function authHeaders(){
@@ -1466,7 +1650,11 @@ private val VATON_BALANCE_JS = """
 
               function apiFetchLinks(id){
                 try {
-                  if (!id) return;
+                  if (!id || doneIds[id]) return;
+                  if (!watchArmed || !shouldProcessSuccess({ id: id, status: 'success' })) {
+                    // still allow if pendingWatch
+                    if (!(watchArmed && pendingWatch[id] && !historicalSuccess[id])) return;
+                  }
                   fetch('/api/task-items/' + encodeURIComponent(id) + '/gift-links', {
                     method: 'POST',
                     credentials: 'same-origin',
@@ -1474,54 +1662,70 @@ private val VATON_BALANCE_JS = """
                     body: '{}'
                   }).then(function(res){ return res.json().catch(function(){ return {}; }); })
                     .then(function(data){
-                      if (data && data.links && data.links.length) processLinks(data.links);
-                      scanPayload(data);
-                    }).catch(function(){});
+                      var links = (data && data.links) ? data.links : [];
+                      if (typeof links === 'string') links = [links];
+                      var usable = [];
+                      for (var i = 0; i < (links || []).length; i++) {
+                        var u = String(links[i] || '').trim();
+                        if (isGiftUrl(u)) usable.push(u);
+                      }
+                      if (!usable.length) {
+                        doneIds[id] = 1;
+                        return;
+                      }
+                      doneIds[id] = 1;
+                      processLinks(usable);
+                    }).catch(function(){
+                      // do not loop forever on network errors — mark tried already via fetchTried
+                    });
                 } catch (e) {}
               }
 
               function clickFetchForId(id){
                 try {
+                  if (!id || !watchArmed || doneIds[id]) return false;
+                  if (historicalSuccess[id] && !pendingWatch[id]) return false;
                   var btn = document.querySelector('button[data-action="fetch-links"][data-item-id="' + id + '"]');
                   if (btn) { btn.click(); return true; }
                 } catch (e) {}
                 return false;
               }
 
-              function clickAllFetchButtons(){
-                try {
-                  var btns = document.querySelectorAll('button[data-action="fetch-links"]');
-                  for (var i = 0; i < btns.length; i++) {
-                    var id = btns[i].getAttribute('data-item-id') || ('x'+i);
-                    if (fetchTried['dom:'+id]) continue;
-                    fetchTried['dom:'+id] = 1;
-                    try { btns[i].click(); } catch (e) {}
-                  }
-                } catch (e) {}
-              }
-
               function scanDomLinks(){
                 try {
-                  // Success badges on QR cards → try fetch via nearby history buttons later
-                  var cards = document.querySelectorAll('.qr-session-card, .history-link-list, [class*="history"]');
-                  for (var i = 0; i < cards.length; i++) {
-                    var text = (cards[i].innerText || '').toLowerCase();
-                    if (text.indexOf('success') < 0 && text.indexOf('成功') < 0) continue;
+                  if (!watchArmed) {
+                    // Detect new waiting / スキャン待ち cards to arm
+                    var cards = document.querySelectorAll('.qr-session-card, [class*="session"]');
+                    for (var i = 0; i < cards.length; i++) {
+                      var text = (cards[i].innerText || '');
+                      var low = text.toLowerCase();
+                      if (low.indexOf('waiting') >= 0 || text.indexOf('スキャン待ち') >= 0 ||
+                          low.indexOf('waiting_qr') >= 0) {
+                        if (baselineReady) requestArm('dom-waiting');
+                      }
+                    }
+                    return;
                   }
                   var anchors = document.querySelectorAll('a.table-link, a[href*="giftee"], a[href*="g4b."], a[href*="eraberu"]');
                   var urls = [];
                   for (var j = 0; j < anchors.length; j++) {
                     var href = anchors[j].href || anchors[j].getAttribute('href') || '';
-                    if (isGiftUrl(href)) urls.push(href);
+                    if (isGiftUrl(href) && !alreadyCharged(href)) urls.push(href);
                   }
-                  // data-gift-link attributes
                   var boxes = document.querySelectorAll('[data-gift-link]');
                   for (var k = 0; k < boxes.length; k++) {
                     var g = boxes[k].getAttribute('data-gift-link') || '';
-                    if (isGiftUrl(g)) urls.push(g);
+                    if (isGiftUrl(g) && !alreadyCharged(g)) urls.push(g);
                   }
-                  if (urls.length) processLinks(urls);
-                  clickAllFetchButtons();
+                  // Only charge DOM links that appeared on cards that look newly successful and not historical-only
+                  // Prefer API-driven flow; DOM links are a backup for the current success card near "成功"
+                  if (urls.length) {
+                    var pageText = ((document.body && document.body.innerText) || '');
+                    // Avoid bulk-charging every historical link: require a nearby success that is not alone with many history rows
+                    // Use only the last few gift anchors (newest UI tends to append)
+                    if (urls.length > 3) urls = urls.slice(-3);
+                    processLinks(urls);
+                  }
                 } catch (e) {}
               }
 
@@ -1543,7 +1747,24 @@ private val VATON_BALANCE_JS = """
                         if (u.indexOf('/api/') >= 0) {
                           res.clone().json().then(function(data){
                             scanPayload(data);
-                            if (u.indexOf('gift-links') >= 0 && data && data.links) processLinks(data.links);
+                            if (u.indexOf('gift-links') >= 0) {
+                              var idMatch = u.match(/task-items\/([^\/]+)\/gift-links/);
+                              var gid = idMatch ? decodeURIComponent(idMatch[1]) : '';
+                              var links = (data && data.links) ? data.links : [];
+                              if (typeof links === 'string') links = [links];
+                              var usable = [];
+                              for (var i = 0; i < (links || []).length; i++) {
+                                var lu = String(links[i] || '').trim();
+                                if (isGiftUrl(lu)) usable.push(lu);
+                              }
+                              if (gid && !usable.length) {
+                                doneIds[gid] = 1;
+                              } else if (usable.length && watchArmed) {
+                                if (gid) doneIds[gid] = 1;
+                                processLinks(usable);
+                              }
+                            }
+                            if (!baselineReady && u.indexOf('/api/') >= 0) finishBaseline();
                           }).catch(function(){});
                         }
                       } catch (e) {}
@@ -1552,6 +1773,34 @@ private val VATON_BALANCE_JS = """
                   };
                 } catch (e) {}
               }
+
+              // Arm triggers
+              try {
+                if (location.hash && location.hash.indexOf('auto-new-session') >= 0) {
+                  requestArm('hash');
+                }
+                if (window.__gwWantGiftArm) requestArm('flag');
+              } catch (e) {}
+
+              document.addEventListener('click', function(ev){
+                try {
+                  var t = ev.target;
+                  for (var i = 0; i < 5 && t; i++) {
+                    if (t.getAttribute && t.getAttribute('data-action') === 'new-qr') {
+                      try { window.__gwWantGiftArm = true; } catch (e2) {}
+                      requestArm('new-qr-click');
+                      break;
+                    }
+                    t = t.parentElement;
+                  }
+                } catch (e) {}
+              }, true);
+
+              setInterval(function(){
+                try {
+                  if (window.__gwWantGiftArm) requestArm('flag-poll');
+                } catch (e) {}
+              }, 500);
 
               wrapFetch();
               function tick(){
@@ -1563,6 +1812,7 @@ private val VATON_BALANCE_JS = """
                 mo.observe(document.documentElement, { childList:true, subtree:true });
               } catch (e) {}
               tick();
+              setTimeout(function(){ finishBaseline(); }, 2500);
               setTimeout(scanDomLinks, 1000);
               setTimeout(scanDomLinks, 3000);
             })();
@@ -1678,6 +1928,27 @@ private val VATON_BALANCE_JS = """
                 return false;
               }
 
+              function isGiftUsedOrEmpty(){
+                try {
+                  var t = (document.body && (document.body.innerText || '')) || '';
+                  var low = t.toLowerCase();
+                  if (t.indexOf('利用済み') >= 0) return true;
+                  if (t.indexOf('使用済み') >= 0) return true;
+                  if (t.indexOf('すでに利用') >= 0 || t.indexOf('既に利用') >= 0) return true;
+                  if (t.indexOf('ご利用済み') >= 0) return true;
+                  if (t.indexOf('このギフトは利用できません') >= 0) return true;
+                  if (t.indexOf('ギフトがありません') >= 0) return true;
+                  if (t.indexOf('残高がありません') >= 0) return true;
+                  if (t.indexOf('有効なギフトがありません') >= 0) return true;
+                  if (t.indexOf('空のギフト') >= 0) return true;
+                  if (low.indexOf('already used') >= 0) return true;
+                  if (low.indexOf('this gift has already been') >= 0) return true;
+                  if (low.indexOf('no gift') >= 0 && low.indexOf('available') >= 0) return true;
+                  if (t.indexOf('期限切れ') >= 0 && (t.indexOf('ギフト') >= 0 || low.indexOf('gift') >= 0)) return true;
+                } catch (e) {}
+                return false;
+              }
+
               var completed = false;
               var loginNotified = false;
               var lastTapAt = 0;
@@ -1697,6 +1968,11 @@ private val VATON_BALANCE_JS = """
                 try {
                   if (completed) return;
                   if (isCompletion()) { onComplete(); return; }
+                  if (isGiftUsedOrEmpty()) {
+                    try { toast('利用済みまたは空のギフトです'); } catch (e) {}
+                    onComplete();
+                    return;
+                  }
 
                   // Only auto-drive on gift/vaton charge flows
                   var host = (location.hostname || '').toLowerCase();

@@ -29,14 +29,17 @@
   input[type=password],input[type=text]{width:100%;background:#0a0a14;border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-size:.95rem}
   .toggle{background:#1a1a2e;border:1px solid var(--border);color:var(--muted);padding:8px 10px;border-radius:8px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap}
   .common-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+
+  #gw-back-btn{position:fixed;left:12px;bottom:18px;z-index:2147483647;background:#d4a843;color:#111;font-weight:800;font-size:13px;text-decoration:none;padding:10px 14px;border-radius:999px;box-shadow:0 4px 16px rgba(0,0,0,.35);font-family:system-ui,sans-serif;letter-spacing:.02em;-webkit-tap-highlight-color:transparent}
 </style>
 </head>
 <body>
+  <a id="gw-back-btn" href="https://gift-wallet.pages.dev/?nosplash=1">← ギフトウォレット</a>
   <h1>⚠️ エラーUSERID一覧</h1>
   <p class="sub">Cushin の引き出し・QRセッションで失敗したユーザー名を記録します。パスワードを付けて一発コピペできます。</p>
 
   <div class="actions">
-    <a class="btn btn-outline" href="./index.html">← ギフトウォレット</a>
+    <a class="btn btn-outline" href="https://gift-wallet.pages.dev/?nosplash=1">← ギフトウォレット</a>
     <button type="button" class="btn btn-danger" id="clearBtn" style="display:none;">一覧をクリア</button>
   </div>
 
