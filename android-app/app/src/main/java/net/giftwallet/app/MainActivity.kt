@@ -41,13 +41,6 @@ class MainActivity : AppCompatActivity() {
     private var currentChargeUrl: String? = null
     private var chargeBusy = false
 
-    private val hourlySyncRunnable = object : Runnable {
-        override fun run() {
-            startCsvSync(fromTimer = true)
-            syncHandler.postDelayed(this, HOUR_MS)
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -75,11 +68,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        // Hourly CSV sync while process alive; also once shortly after start if due
-        syncHandler.postDelayed(hourlySyncRunnable, HOUR_MS)
-        syncHandler.postDelayed({
-            if (isCsvSyncDue()) startCsvSync(fromTimer = true)
-        }, STARTUP_SYNC_DELAY_MS)
+        // CSV sync only on manual ギフト tap (startGiftWalletCsvSync) — no startup/hourly auto-nav
     }
 
     override fun onDestroy() {
@@ -199,14 +188,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun isCsvSyncDue(): Boolean {
-        val last = prefs.getLong(KEY_LAST_CSV_SYNC_MS, 0L)
-        return System.currentTimeMillis() - last >= HOUR_MS
-    }
-
-    private fun startCsvSync(fromTimer: Boolean) {
+    private fun startCsvSync() {
         if (csvSyncInFlight) return
-        if (fromTimer && !isCsvSyncDue()) return
         csvSyncInFlight = true
         webView.loadUrl(POINT_LOGS_AUTO_URL)
         // Safety reset if download never arrives
@@ -491,7 +474,7 @@ class MainActivity : AppCompatActivity() {
 
         @JavascriptInterface
         fun startGiftWalletCsvSync() {
-            runOnUiThread { startCsvSync(fromTimer = false) }
+            runOnUiThread { startCsvSync() }
         }
 
         @JavascriptInterface
@@ -575,8 +558,6 @@ class MainActivity : AppCompatActivity() {
         private const val POINT_LOGS_AUTO_URL =
             "https://wallet.vaton.jp/point/point_logs#gw-auto-csv"
         private const val FIXED_CSV_NAME = "ポイント履歴_今月.csv"
-        private const val HOUR_MS = 60L * 60L * 1000L
-        private const val STARTUP_SYNC_DELAY_MS = 20_000L
 
         private val HELPER_JS_BASE = """
             (function(){
@@ -903,6 +884,9 @@ class MainActivity : AppCompatActivity() {
                   var links = document.querySelectorAll('a[href*="wallet.vaton.jp/point/point_logs"]');
                   for (var i = 0; i < links.length; i++) {
                     var a = links[i];
+                    // Guard: rewrite + bind click only once per element (avoids MO/attr loop freeze)
+                    if (a.getAttribute('data-gw-csv') === '1') continue;
+                    a.setAttribute('data-gw-csv', '1');
                     a.setAttribute('target', '_self');
                     a.removeAttribute('rel');
                     a.setAttribute('href', 'https://wallet.vaton.jp/point/point_logs#gw-auto-csv');
@@ -918,15 +902,12 @@ class MainActivity : AppCompatActivity() {
                 } catch (e) {}
                 pushBalance();
               }
+              // No MutationObserver — setAttribute fired observer → infinite rewrite froze UI
               rewrite();
               if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', rewrite);
               setTimeout(rewrite, 500);
               setTimeout(rewrite, 1500);
               setInterval(pushBalance, 2000);
-              try {
-                var mo = new MutationObserver(function(){ rewrite(); injectErrorUserIdsBackBtn(); });
-                mo.observe(document.documentElement, { childList:true, subtree:true });
-              } catch (e) {}
             })();
         """.trimIndent()
 
@@ -1341,12 +1322,20 @@ private val VATON_BALANCE_JS = """
                 scrapeBalance();
                 setTimeout(tick, 2500);
               }
+              var scrapeTimer = null;
+              function scheduleScrape(){
+                if (scrapeTimer) return;
+                scrapeTimer = setTimeout(function(){
+                  scrapeTimer = null;
+                  scrapeBalance();
+                }, 300);
+              }
               scrapeBalance();
               setTimeout(scrapeBalance, 800);
               setTimeout(scrapeBalance, 2000);
               setTimeout(scrapeBalance, 5000);
               try {
-                var mo = new MutationObserver(function(){ scrapeBalance(); });
+                var mo = new MutationObserver(function(){ scheduleScrape(); });
                 mo.observe(document.documentElement, { childList:true, subtree:true, characterData:true });
               } catch (e) {}
               tick();

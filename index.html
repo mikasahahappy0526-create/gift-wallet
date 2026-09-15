@@ -106,12 +106,21 @@ body{font-family:"DotGothic16",sans-serif;background:var(--bg);color:var(--text)
 .f-bal-block{display:flex;flex-direction:column;min-width:0;}
 .f-bal-label{font-size:9px;font-weight:700;color:var(--gray);letter-spacing:.12em;font-family:'DM Mono',monospace;margin-bottom:4px;}
 .f-bal-value-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-.cal-collapse-bar{display:flex;align-items:center;justify-content:flex-start;padding:6px 12px 0;gap:8px;}
-.cal-collapse-btn{appearance:none;border:1px solid var(--border);background:var(--gray5);color:var(--text2);border-radius:999px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.04em;}
-.cal-collapse-btn:active{transform:scale(.97);}
-#calCollapsible.collapsed #monthNav,
-#calCollapsible.collapsed .cal-wrap,
-#calCollapsible.collapsed .cal-footer{display:none !important;}
+.cal-section-tabs{display:flex;align-items:center;gap:6px;padding:8px 12px 0;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.cal-section-tab{appearance:none;border:1px solid var(--border);background:var(--gray5);color:var(--text2);border-radius:999px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.04em;white-space:nowrap;flex-shrink:0;}
+.cal-section-tab.active{background:rgba(212,168,67,.18);border-color:rgba(212,168,67,.45);color:var(--gold);}
+.cal-section-tab:active{transform:scale(.97);}
+#calPanelForecast,#calPanelMtable{display:none;}
+#calSectionRoot[data-tab="calendar"] #calPanelCalendar{display:block;}
+#calSectionRoot[data-tab="calendar"] #calPanelForecast,
+#calSectionRoot[data-tab="calendar"] #calPanelMtable{display:none !important;}
+#calSectionRoot[data-tab="forecast"] #calPanelForecast{display:block;}
+#calSectionRoot[data-tab="forecast"] #calPanelCalendar,
+#calSectionRoot[data-tab="forecast"] #calPanelMtable{display:none !important;}
+#calSectionRoot[data-tab="mtable"] #calPanelMtable{display:block;}
+#calSectionRoot[data-tab="mtable"] #calPanelCalendar,
+#calSectionRoot[data-tab="mtable"] #calPanelForecast{display:none !important;}
+#calPanelForecast .forecast-card{display:block !important;margin:10px;}
 
 /* ===== フッターボタン行 ===== */
 .footer-btns{display:flex;gap:6px;margin-top:10px;}
@@ -414,11 +423,20 @@ tr{cursor:pointer;}
   }
   try{sessionStorage.setItem('gw_skip_splash','1');}catch(e){}
   // Light CSS splash only (~0.75s) — no canvas / RAF particle loop (avoids freeze after task-kill).
+  function forceHideSplash(){
+    if(!sp) return;
+    sp.classList.add('hide');
+    sp.style.pointerEvents='none';
+    sp.style.display='none';
+  }
   setTimeout(function(){
     if(!sp) return;
     sp.classList.add('hide');
+    sp.style.pointerEvents='none';
     setTimeout(function(){sp.style.display='none';},400);
   },750);
+  // Hard fallback: force hide after max 1.2s even if class animation fails
+  setTimeout(forceHideSplash, 1200);
 })();
 </script>
 
@@ -512,10 +530,14 @@ tr{cursor:pointer;}
     </div>
   </div>
 
-  <div id="calCollapsible">
-  <div class="cal-collapse-bar">
-    <button type="button" class="cal-collapse-btn" id="calCollapseBtn" aria-expanded="true" aria-controls="monthNav" data-hint="カレンダー表示の折りたたみ">カレンダー ▾</button>
+  <div id="calSectionRoot" data-tab="calendar">
+  <div class="cal-section-tabs" role="tablist" aria-label="カレンダーセクション">
+    <button type="button" class="cal-section-tab active" role="tab" data-cal-tab="calendar" aria-selected="true">カレンダー</button>
+    <button type="button" class="cal-section-tab" role="tab" data-cal-tab="forecast" aria-selected="false">月末予測</button>
+    <button type="button" class="cal-section-tab" role="tab" data-cal-tab="mtable" aria-selected="false">月別集計</button>
   </div>
+
+  <div id="calPanelCalendar">
   <div class="month-nav" id="monthNav">
     <button class="mnav-btn" id="prevBtn" onclick="changeMonth(-1)">‹</button>
     <div class="month-tabs" id="monthTabs"></div>
@@ -532,9 +554,10 @@ tr{cursor:pointer;}
       <div class="cal-cells" id="calCells"></div>
     </div>
   </div>
+  </div><!-- /calPanelCalendar -->
 
-  <div class="cal-footer" style="padding-top:0;">
-    <div class="forecast-card" id="forecastCard" style="display:none;">
+  <div id="calPanelForecast">
+    <div class="forecast-card" id="forecastCard">
       <div style="display:flex;flex-direction:column;gap:8px;">
         <div>
           <div class="forecast-label">📈 月末予測売上</div>
@@ -550,9 +573,9 @@ tr{cursor:pointer;}
         </div>
       </div>
     </div>
-  </div>
-  </div><!-- /calCollapsible -->
+  </div><!-- /calPanelForecast -->
 
+  <div id="calPanelMtable">
   <div class="mtable-wrap">
     <div class="mtable-card">
       <div class="mtable-head">月別集計</div>
@@ -560,6 +583,8 @@ tr{cursor:pointer;}
       <tbody id="monthTableBody"></tbody></table>
     </div>
   </div>
+  </div><!-- /calPanelMtable -->
+  </div><!-- /calSectionRoot -->
 
   <!-- 参照ファイルパネル -->
 
@@ -2075,35 +2100,36 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 
 <script>
-// ===== カレンダー折りたたみ =====
+// ===== カレンダー / 月末予測 / 月別集計 タブ =====
 (function(){
-  var KEY = 'gw_cal_collapsed';
-  function apply(collapsed){
-    var wrap = document.getElementById('calCollapsible');
-    var btn = document.getElementById('calCollapseBtn');
-    if(!wrap||!btn) return;
-    if(collapsed){
-      wrap.classList.add('collapsed');
-      btn.textContent = 'カレンダー ▸';
-      btn.setAttribute('aria-expanded','false');
-      localStorage.setItem(KEY,'1');
-    } else {
-      wrap.classList.remove('collapsed');
-      btn.textContent = 'カレンダー ▾';
-      btn.setAttribute('aria-expanded','true');
-      localStorage.removeItem(KEY);
+  var KEY = 'gw_cal_tab';
+  var VALID = {calendar:1, forecast:1, mtable:1};
+  function apply(tab){
+    if(!VALID[tab]) tab = 'calendar';
+    var root = document.getElementById('calSectionRoot');
+    if(!root) return;
+    root.setAttribute('data-tab', tab);
+    localStorage.setItem(KEY, tab);
+    var btns = root.querySelectorAll('.cal-section-tab');
+    for(var i=0;i<btns.length;i++){
+      var t = btns[i].getAttribute('data-cal-tab');
+      var on = t === tab;
+      btns[i].classList.toggle('active', on);
+      btns[i].setAttribute('aria-selected', on ? 'true' : 'false');
     }
   }
   function bind(){
-    var btn = document.getElementById('calCollapseBtn');
-    if(!btn || btn.__gwCalBound) return;
-    btn.__gwCalBound = true;
-    apply(localStorage.getItem(KEY)==='1');
-    btn.addEventListener('click', function(ev){
+    var root = document.getElementById('calSectionRoot');
+    if(!root || root.__gwCalTabBound) return;
+    root.__gwCalTabBound = true;
+    try{ localStorage.removeItem('gw_cal_collapsed'); }catch(e){}
+    var saved = localStorage.getItem(KEY) || 'calendar';
+    apply(saved);
+    root.addEventListener('click', function(ev){
+      var btn = ev.target && ev.target.closest ? ev.target.closest('.cal-section-tab') : null;
+      if(!btn || !root.contains(btn)) return;
       ev.preventDefault();
-      var wrap = document.getElementById('calCollapsible');
-      var nowCollapsed = !!(wrap && wrap.classList.contains('collapsed'));
-      apply(!nowCollapsed);
+      apply(btn.getAttribute('data-cal-tab') || 'calendar');
     });
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', bind);
