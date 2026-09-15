@@ -1,0 +1,64 @@
+{
+  "name": "gift-wallet-desktop",
+  "productName": "ギフトウォレット",
+  "version": "1.0.0",
+  "description": "ギフトウォレット Desktop (Electron) — Android WebView アプリ相当",
+  "main": "main.js",
+  "author": "gift-wallet",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win portable",
+    "build:linux": "electron-builder --linux dir",
+    "build:mac": "electron-builder --mac dir"
+  },
+  "build": {
+    "appId": "net.giftwallet.desktop",
+    "productName": "ギフトウォレット",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "inject/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "gift-wallet-desktop.${ext}",
+      "signAndEditExecutable": false
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "dir",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "category": "Utility"
+    },
+    "mac": {
+      "target": [
+        "dir"
+      ],
+      "category": "public.app-category.finance"
+    },
+    "executableName": "gift-wallet-desktop"
+  },
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^25.1.8"
+  }
+}
