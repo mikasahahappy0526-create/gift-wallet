@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="./favicon.ico" sizes="any">
+<link rel="icon" href="./favicon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>APN設定一覧</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --amber:#f5b731;--amber-d:#d49a0a;--amber-l:#fff8e1;
+  --text:#1a1a2e;--text2:#444;--gray:#888;
+  --white:#fff;--bg:#f7f6f2;--border:#e8e4dc;
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:"Noto Sans JP",sans-serif;background:var(--bg);color:var(--text);line-height:1.6;}
+
+/* HEADER */
+.topnav{background:var(--amber);padding:0 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.12);}
+.back-btn{background:none;border:none;color:#fff;font-size:26px;font-weight:900;padding:12px 10px 12px 0;cursor:pointer;line-height:1;}
+.nav-title{flex:1;font-size:17px;font-weight:900;color:#fff;}
+
+/* SEARCH */
+.search-wrap{padding:14px 14px 8px;}
+.search-box{display:flex;gap:8px;background:#fff;border:2px solid var(--amber);border-radius:12px;padding:10px 14px;align-items:center;}
+.search-box input{flex:1;border:none;outline:none;font-size:15px;font-family:inherit;color:var(--text);background:transparent;}
+.search-box input::placeholder{color:#bbb;}
+.search-icon{font-size:18px;color:var(--amber-d);}
+
+/* FILTER TABS */
+.filter-tabs{display:flex;gap:6px;padding:4px 14px 10px;overflow-x:auto;scrollbar-width:none;}
+.filter-tabs::-webkit-scrollbar{display:none;}
+.ftab{border:1.5px solid var(--border);border-radius:99px;padding:4px 14px;font-size:12px;font-weight:700;color:var(--gray);background:#fff;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.ftab.active{background:var(--amber);color:#fff;border-color:var(--amber);}
+
+/* CARRIER CARDS */
+.cards{padding:0 14px 80px;display:flex;flex-direction:column;gap:10px;}
+.card{background:#fff;border-radius:var(--r);box-shadow:0 2px 10px rgba(0,0,0,.06);overflow:hidden;border:1px solid var(--border);}
+.card-head{padding:12px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;}
+.carrier-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;font-weight:900;color:#fff;}
+.carrier-name{flex:1;}
+.carrier-name-main{font-size:14px;font-weight:900;color:var(--text);}
+.carrier-name-sub{font-size:10px;color:var(--gray);margin-top:1px;}
+.carrier-base{font-size:10px;padding:2px 8px;border-radius:5px;font-weight:700;}
+.base-d{background:#e0f2fe;color:#0369a1;}
+.base-a{background:#fef3c7;color:#b45309;}
+.base-s{background:#fce7f3;color:#be185d;}
+.base-r{background:#fde8e8;color:#b91c1c;}
+.chevron{font-size:16px;color:#ccc;transition:transform .25s;}
+.card.open .chevron{transform:rotate(180deg);}
+
+/* APN TABLE */
+.apn-body{display:none;padding:0 16px 14px;border-top:1px solid var(--border);}
+.card.open .apn-body{display:block;}
+.apn-section{margin-top:12px;}
+.apn-section-title{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;}
+.apn-table{width:100%;border-collapse:collapse;}
+.apn-table tr{border-bottom:1px solid #f0f0f0;}
+.apn-table tr:last-child{border-bottom:none;}
+.apn-table td{padding:7px 4px;font-size:12px;vertical-align:top;}
+.apn-table td:first-child{color:var(--gray);width:38%;font-size:11px;padding-right:8px;}
+.apn-table td:last-child{font-family:"DM Mono",monospace;font-size:12px;font-weight:500;color:var(--text);word-break:break-all;}
+.copy-btn{background:var(--amber-l);border:1px solid #fde68a;border-radius:5px;padding:2px 8px;font-size:10px;font-weight:700;color:var(--amber-d);cursor:pointer;margin-left:6px;white-space:nowrap;}
+.copy-btn:active{background:var(--amber);color:#fff;}
+.official-link{display:inline-flex;align-items:center;gap:4px;margin-top:10px;background:#f8f9fa;border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:11px;color:#3b82f6;text-decoration:none;font-weight:700;}
+.note{font-size:11px;color:var(--gray);line-height:1.7;margin-top:8px;background:#f8f9fa;border-radius:8px;padding:8px 10px;}
+
+/* NO RESULT */
+.no-result{text-align:center;padding:40px 20px;color:var(--gray);font-size:14px;}
+
+/* TOAST */
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:8px 20px;border-radius:99px;font-size:12px;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;}
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <button class="back-btn" onclick="history.back()">‹</button>
+  <div class="nav-title">📶 APN設定一覧</div>
+  <div style="display:flex;gap:6px;">
+    <a href="./index.html" style="background:rgba(255,255,255,.22);color:#fff;font-size:11px;font-weight:700;padding:6px 10px;border-radius:8px;text-decoration:none;white-space:nowrap;">🏠 TOP</a>
+    <a href="./index.html#calendar" onclick="sessionStorage.setItem('gotoCalendar','1')" style="background:rgba(255,255,255,.22);color:#fff;font-size:11px;font-weight:700;padding:6px 10px;border-radius:8px;text-decoration:none;white-space:nowrap;">📅 収支表</a>
+  </div>
+</div>
+
+<div class="search-wrap">
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="キャリア名で検索..." oninput="filterCards()">
+  </div>
+</div>
+
+<div class="filter-tabs">
+  <button class="ftab active" onclick="setFilter('all',this)">すべて</button>
+  <button class="ftab" onclick="setFilter('docomo',this)">ドコモ回線</button>
+  <button class="ftab" onclick="setFilter('au',this)">au回線</button>
+  <button class="ftab" onclick="setFilter('softbank',this)">SB回線</button>
+  <button class="ftab" onclick="setFilter('rakuten',this)">楽天回線</button>
+</div>
+
+<div class="cards" id="cards"></div>
+<div id="toast">コピーしました！</div>
+
+<script>
+const CARRIERS = [
+  // ── 大手キャリア ──
+  {
+    name:'NTTドコモ', sub:'spモード', base:'d', color:'#e4002b', icon:'D',
+    tags:['docomo'],
+    sections:[{
+      title:'Android / iOS共通',
+      rows:[
+        {label:'APN', val:'spmode.ne.jp'},
+        {label:'ユーザー名', val:'（空白）'},
+        {label:'パスワード', val:'（空白）'},
+        {label:'認証タイプ', val:'未設定 または なし'},
+        {label:'APNプロトコル', val:'IPv4/IPv6'},
+      ]
+    }],
+    note:'ドコモ回線SIMフリー端末の場合。ドコモで購入したスマホは設定不要。',
+    url:'https://www.docomo.ne.jp/support/for_simfree/apn.html'
+  },
+  {
+    name:'au', sub:'LTE NET', base:'a', color:'#e8480c', icon:'au',
+    tags:['au'],
+    sections:[{
+      title:'Android',
+      rows:[
+        {label:'APN', val:'uno.au-net.ne.jp'},
+        {label:'ユーザー名', val:'685840734641020@uno.au-net.ne.jp'},
+        {label:'パスワード', val:'KpyrR6BP'},
+        {label:'認証タイプ', val:'CHAP'},
+        {label:'APNプロトコル', val:'IPv4/IPv6'},
+      ]
+    }],
+    note:'au回線SIMフリー端末の場合。auで購入したスマホは設定不要。',
+    url:'https://www.au.com/support/service/mobile/guide/simfree/'
+  },
+  {
+    name:'SoftBank', sub:'SoftBank LTE', base:'s', color:'#00a0e9', icon:'SB',
+    tags:['softbank'],
+    sections:[{
+      title:'Android',
+      rows:[
+        {label:'APN', val:'plus.4g.softbank.ne.jp'},
+        {label:'ユーザー名', val:'sbnp@softbank.ne.jp'},
+        {label:'パスワード', val:'sbnp'},
+        {label:'認証タイプ', val:'PAP または CHAP'},
+        {label:'APNプロトコル', val:'IPv4/IPv6'},
+      ]
+    }],
+    note:'SB回線SIMフリー端末の場合。SoftBankで購入したスマホは設定不要。',
+    url:'https://www.softbank.jp/mobile/support/usim/'
+  },
+  {
+    name:'楽天モバイル', sub:'Rakuten最強プラン', base:'r', color:'#bf0000', icon:'R',
+    tags:['rakuten'],
+    sections:[{
+      title:'Android（APN不要なケースも多い）',
+      rows:[
+        {label:'APN', val:'rakuten.jp'},
+        {label:'ユーザー名', val:'（空白）'},
+        {label:'パスワード', val:'（空白）'},
+        {label:'認証タイプ', val:'なし'},
+        {label:'APNプロトコル', val:'IPv4/IPv6'},
+      ]
+    }],
+    note:'楽天回線エリアでは自動設定。パートナー回線(au)では「un.au-net.ne.jp」を使用する場合あり。',
+    url:'https://network.mobile.rakuten.co.jp/guide/apn/'
+  },
+  // ── サブブランド ──
+  {
+    name:'UQ mobile', sub:'au回線', base:'a', color:'#00b140', icon:'UQ',
+    tags:['au'],
+    sections:[{
+      title:'Android',
+      rows:[
+        {label:'APN', val:'uqmobile.jp'},
+        {label:'ユーザー名', val:'uq@uqmobile.jp'},
+        {label:'パスワード', val:'uq'},
+        {label:'認証タイプ', val:'CHAP'},
+        {label:'APNプロトコル', val:'IPv4/IPv6'},
+      ]
+    }],
+    note:'iPhoneはプロファイルインストールが必要。UQ公式サイトからダウンロード。',
+    url:'https://www.uqwimax.jp/mobile/support/guide/apn/'
+  },
+  {
+    name:'Y!mobile', sub:'SoftBank回線', base:'s', color:'#e10014', icon:'Y!',
+    tags:['softbank'],
+    sections:[{
+      title:'Android',
+      rows:[
+        {label:'APN', val:'plus.acs.jp'},
+        {label:'ユーザー名', val:'ym@plus.acs.jp.prf.uf'},
+        {label:'パスワード', val:'ym'},
+        {label:'認証タイプ', val:'PAP または CHAP'},
+        {label:'APNプロトコル', val:'IPv4/IPv6'},
+      ]
+    }],
+    note:'SoftBankから乗り換えたスマホは自動設定される場合あり。',
+    url:'https://www.ymobile.jp/support/process/apn/'
+  },
+  {
+    name:'ahamo', sub:'ドコモ回線', base:'d', color:'#0065ff', icon:'ah',
+    tags:['docomo'],
+    sections:[{
+      title:'Android / iOS',
+      rows:[
+        {label:'APN', val:'spmode.ne.jp'},
+        {label:'ユーザー名', val:'（空白）'},
+        {label:'パスワード', val:'（空白）'},
+        {label:'認証タイプ', val:'未設定'},
+        {label:'APNプロトコル', val:'IPv4/IPv6'},
+      ]
+    }],
+    note:'ドコモ回線のためAPN値はspモードと同じ。iPhoneは自動設定。',
+    url:'https://ahamo.com/services/apn-setting/index.html'
+  },
+  {
+    name:'povo', sub:'au回線', base:'a', color:'#ff4500', icon:'pv',
+    tags:['au'],
+    sections:[{
+      title:'Android',
+      rows:[
+        {label:'APN', val:'povo.jp'},
+        {label:'ユーザー名', val:'（空白）'},
+        {label:'パスワード', val:'（空白）'},
+        {label:'認証タイプ', val:'なし'},
+        {label:'APNプロトコル', val:'IPv4/IPv6'},
+      ]
+    }],
+    note:'iPhoneはeSIM対応。SIMカードの場合はプロファイルインストールが必要。',
+    url:'https://povo.jp/support/apn/'
+  },
+  {
+    name:'LINEMO', sub:'SoftBank回線', base:'s', color:'#00b900', icon:'LM',
+    tags:['softbank'],
+    sections:[{
+      title:'Android',
+      rows:[
+        {label:'APN', val:'linemo.net'},
+        {label:'ユーザー名', val:'（空白）'},
+        {label:'パスワード', val:'（空白）'},
+        {label:'認証タイプ', val:'なし'},
+        {label:'APNプロトコル', val:'IPv4/IPv6'},
+      ]
+    }],
+    note:'SoftBankから乗り換えの場合は自動設定。iPhoneはプロファイル不要（eSIM）。',
+    url:'https://www.linemo.jp/process/apn/'
+  },
+  // ── MVNO ──
+  {
+    name:'IIJmio', sub:'ドコモ回線 (タイプD)', base:'d', color:'#003087', icon:'IIJ',
+    tags:['docomo'],
+    sections:[
+      {
+        title:'タイプD（ドコモ回線）Android',
+        rows:[
+          {label:'APN', val:'iijmio.jp'},
+          {label:'ユーザー名', val:'mio@iij'},
+          {label:'パスワード', val:'iij'},
+          {label:'認証タイプ', val:'CHAP'},
+          {label:'APNプロトコル', val:'IPv4/IPv6'},
+        ]
+      },
+      {
+        title:'タイプA（au回線）Android',
+        rows:[
+          {label:'APN', val:'iijmio.jp'},
+          {label:'ユーザー名', val:'mio@iij'},
+          {label:'パスワード', val:'iij'},
+          {label:'認証タイプ', val:'CHAP'},
+          {label:'APNプロトコル', val:'IPv4/IPv6'},
+        ]
+      }
+    ],
+    note:'iPhoneはプロファイルインストールが必要。IIJmio公式サイトからダウンロード。',
+    url:'https://www.iijmio.jp/hdc/guide/setting/'
+  },
+  {
+    name:'mineo', sub:'ドコモ/au/SB回線', base:'d', color:'#f063a4', icon:'mn',
+    tags:['docomo','au','softbank'],
+    sections:[
+      {
+        title:'Dプラン（ドコモ回線）Android',
+        rows:[
+          {label:'APN', val:'mineo.jp'},
+          {label:'ユーザー名', val:'mineo@k-opti.com'},
+          {label:'パスワード', val:'mineo'},
+          {label:'認証タイプ', val:'CHAP'},
+          {label:'APNプロトコル', val:'IPv4/IPv6'},
+        ]
+      },
+      {
+        title:'Aプラン（au回線）Android',
+        rows:[
+          {label:'APN', val:'mineo.jp'},
+          {label:'ユーザー名', val:'mineo@k-opti.com'},
+          {label:'パスワード', val:'mineo'},
+          {label:'認証タイプ', val:'CHAP'},
+          {label:'APNプロトコル', val:'IPv4/IPv6'},
+        ]
+      },
+      {
+        title:'Sプラン（SoftBank回線）Android',
+        rows:[
+          {label:'APN', val:'mineo.jp'},
+          {label:'ユーザー名', val:'mineo@k-opti.com'},
+          {label:'パスワード', val:'mineo'},
+          {label:'認証タイプ', val:'CHAP'},
+          {label:'APNプロトコル', val:'IPv4/IPv6'},
+        ]
+      }
+    ],
+    note:'iPhoneはプロファイルインストールが必要。mineo公式サイトからダウンロード。',
+    url:'https://mineo.jp/service/smartphone/setting/'
+  },
+  {
+    name:'日本通信SIM', sub:'ドコモ回線', base:'d', color:'#1a56db', icon:'JC',
+    tags:['docomo'],
+    sections:[{
+      title:'Android',
+      rows:[
+        {label:'APN', val:'dm.jpsimcard.com'},
+        {label:'ユーザー名', val:'nttjpsim'},
+        {label:'パスワード', val:'nttjpsim'},
+        {label:'認証タイプ', val:'CHAP'},
+        {label:'APNプロトコル', val:'IPv4'},
+      ]
+    }],
+    note:'MVNOの種類にSPNを設定すると安定する場合あり。',
+    url:'https://www.nihontsushin.com/support/support_apn_setting-android.html'
+  },
+  {
+    name:'NUROモバイル', sub:'ドコモ/au/SB回線', base:'d', color:'#ff6600', icon:'NU',
+    tags:['docomo','au','softbank'],
+    sections:[
+      {
+        title:'NEOプラン/Dプラン（ドコモ）',
+        rows:[
+          {label:'APN', val:'nuromobile.ne.jp'},
+          {label:'ユーザー名', val:'nuro'},
+          {label:'パスワード', val:'nuro'},
+          {label:'認証タイプ', val:'CHAP'},
+          {label:'APNプロトコル', val:'IPv4/IPv6'},
+        ]
+      },
+      {
+        title:'Aプラン（au回線）',
+        rows:[
+          {label:'APN', val:'nuromobile.ne.jp'},
+          {label:'ユーザー名', val:'nuro'},
+          {label:'パスワード', val:'nuro'},
+          {label:'認証タイプ', val:'CHAP'},
+          {label:'APNプロトコル', val:'IPv4/IPv6'},
+        ]
+      }
+    ],
+    note:'iPhoneはプロファイルインストールが必要。',
+    url:'https://mobile.nuro.jp/sumaho-arekore/knowledge/7796/'
+  },
+  {
+    name:'イオンモバイル', sub:'ドコモ/au回線', base:'d', color:'#e60012', icon:'イオ',
+    tags:['docomo','au'],
+    sections:[
+      {
+        title:'タイプA（ドコモ回線）',
+        rows:[
+          {label:'APN', val:'aeonmobile.com'},
+          {label:'ユーザー名', val:'aeonmobile'},
+          {label:'パスワード', val:'aeonmobile'},
+          {label:'認証タイプ', val:'CHAP'},
+          {label:'APNプロトコル', val:'IPv4/IPv6'},
+        ]
+      },
+      {
+        title:'タイプB（au回線）',
+        rows:[
+          {label:'APN', val:'aeonmobile.com'},
+          {label:'ユーザー名', val:'aeonmobile'},
+          {label:'パスワード', val:'aeonmobile'},
+          {label:'認証タイプ', val:'CHAP'},
+          {label:'APNプロトコル', val:'IPv4/IPv6'},
+        ]
+      }
+    ],
+    note:'iPhoneはプロファイルインストールが必要。',
+    url:'https://aeonmobile.jp/service/apn/'
+  },
+  {
+    name:'BIGLOBEモバイル', sub:'ドコモ/au回線', base:'d', color:'#e95504', icon:'BG',
+    tags:['docomo','au'],
+    sections:[
+      {
+        title:'タイプD（ドコモ回線）',
+        rows:[
+          {label:'APN', val:'biglobe.jp'},
+          {label:'ユーザー名', val:'user@biglobe'},
+          {label:'パスワード', val:'biglobe'},
+          {label:'認証タイプ', val:'PAP'},
+          {label:'APNプロトコル', val:'IPv4/IPv6'},
+        ]
+      },
+      {
+        title:'タイプA（au回線）',
+        rows:[
+          {label:'APN', val:'biglobe.jp'},
+          {label:'ユーザー名', val:'user@biglobe'},
+          {label:'パスワード', val:'biglobe'},
+          {label:'認証タイプ', val:'PAP'},
+          {label:'APNプロトコル', val:'IPv4/IPv6'},
+        ]
+      }
+    ],
+    note:'iPhoneはプロファイルインストールが必要。BIGLOBE公式サイトからDL。',
+    url:'https://support.biglobe.ne.jp/mobile/'
+  },
+];
+
+let activeFilter='all';
+
+function baseClass(b){return{d:'base-d',a:'base-a',s:'base-s',r:''[b]}[b]||'base-d';}
+function baseLabel(b){return{d:'ドコモ回線',a:'au回線',s:'SB回線',r:'楽天回線'}[b]||'';}
+
+function buildCards(list){
+  const cont=document.getElementById('cards');
+  cont.innerHTML='';
+  if(!list.length){
+    cont.innerHTML='<div class="no-result">🔍 該当するキャリアが見つかりません</div>';
+    return;
+  }
+  list.forEach(c=>{
+    const card=document.createElement('div');
+    card.className='card';
+    card.dataset.tags=c.tags.join(' ');
+    card.dataset.name=c.name;
+
+    const sectionsHTML=c.sections.map(sec=>`
+      <div class="apn-section">
+        <div class="apn-section-title">${sec.title}</div>
+        <table class="apn-table">
+          ${sec.rows.map(r=>`
+            <tr>
+              <td>${r.label}</td>
+              <td>${r.val}${r.val!=='（空白）'?`<button class="copy-btn" onclick="copyText('${r.val}',event)">コピー</button>`:''}</td>
+            </tr>
+          `).join('')}
+        </table>
+      </div>
+    `).join('');
+
+    card.innerHTML=`
+      <div class="card-head" onclick="toggleCard(this)">
+        <div class="carrier-icon" style="background:${c.color};">${c.icon}</div>
+        <div class="carrier-name">
+          <div class="carrier-name-main">${c.name}</div>
+          <div class="carrier-name-sub">${c.sub}</div>
+        </div>
+        <span class="carrier-base ${baseClass(c.base)}">${baseLabel(c.base)}</span>
+        <span class="chevron">▾</span>
+      </div>
+      <div class="apn-body">
+        ${sectionsHTML}
+        ${c.note?`<div class="note">⚠️ ${c.note}</div>`:''}
+        <a href="${c.url}" target="_blank" class="official-link">🔗 公式サポートページを確認</a>
+      </div>
+    `;
+    cont.appendChild(card);
+  });
+}
+
+function toggleCard(head){
+  const card=head.closest('.card');
+  const isOpen=card.classList.contains('open');
+  document.querySelectorAll('.card.open').forEach(c=>c.classList.remove('open'));
+  if(!isOpen)card.classList.add('open');
+}
+
+function filterCards(){
+  const q=document.getElementById('searchInput').value.trim().toLowerCase();
+  const filtered=CARRIERS.filter(c=>{
+    const matchSearch=!q||c.name.toLowerCase().includes(q)||c.sub.toLowerCase().includes(q);
+    const matchFilter=activeFilter==='all'||c.tags.includes(activeFilter);
+    return matchSearch&&matchFilter;
+  });
+  buildCards(filtered);
+}
+
+function setFilter(f,btn){
+  activeFilter=f;
+  document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  filterCards();
+}
+
+function copyText(txt,e){
+  e.stopPropagation();
+  navigator.clipboard.writeText(txt).then(()=>{
+    const t=document.getElementById('toast');
+    t.style.opacity='1';
+    setTimeout(()=>t.style.opacity='0',1500);
+  });
+}
+
+// 初期描画
+buildCards(CARRIERS);
+</script>
+</body>
+</html>

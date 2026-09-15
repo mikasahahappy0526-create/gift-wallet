@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="./favicon.ico" sizes="any">
+<link rel="icon" href="./favicon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>アップデート情報 — えらべるPay 収支表</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0a;
+  --bg2:#111111;
+  --bg3:#1a1a1a;
+  --border:#2a2a2a;
+  --gold:#c9933a;
+  --gold-l:#e8b86d;
+  --gold-dim:#7a5520;
+  --text:#f0f0f0;
+  --text2:#a0a0a0;
+  --text3:#606060;
+  --r:12px;
+  --green:#22c55e;
+  --green-dim:#14532d;
+  --blue:#3b82f6;
+  --blue-dim:#1e3a5f;
+  --red:#ef4444;
+  --red-dim:#7f1d1d;
+  --purple:#a855f7;
+  --purple-dim:#4c1d95;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:"Noto Sans JP",sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  max-width:480px;
+  margin:0 auto;
+  padding-bottom:60px;
+}
+
+/* ヘッダー */
+.header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(10,10,10,.95);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:16px 20px 14px;
+  display:flex;align-items:center;gap:12px;
+}
+.header-back{
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:8px;
+  width:36px;height:36px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;cursor:pointer;
+  color:var(--text2);
+  text-decoration:none;
+  transition:border-color .2s,color .2s;
+  flex-shrink:0;
+}
+.header-back:hover{border-color:var(--gold);color:var(--gold);}
+.header-title{font-size:15px;font-weight:700;}
+.header-sub{font-size:10px;color:var(--text3);margin-top:2px;font-family:"DM Mono",monospace;letter-spacing:.08em;}
+
+/* ヒーロー */
+.hero{
+  padding:28px 20px 22px;
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(160deg,#111 0%,#0d0d0d 100%);
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:180px;height:180px;border-radius:50%;
+  background:radial-gradient(circle,rgba(201,147,58,.12) 0%,transparent 70%);
+  pointer-events:none;
+}
+.hero-eyebrow{
+  font-size:10px;font-weight:700;letter-spacing:.2em;color:var(--gold);
+  font-family:"DM Mono",monospace;margin-bottom:8px;
+}
+.hero-title{font-size:22px;font-weight:900;line-height:1.3;margin-bottom:8px;}
+.hero-title span{color:var(--gold);}
+.hero-meta{font-size:12px;color:var(--text3);font-family:"DM Mono",monospace;}
+
+/* バージョンバッジ */
+.version-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(201,147,58,.1);
+  border:1px solid var(--gold-dim);
+  border-radius:99px;
+  padding:4px 12px;
+  font-size:11px;font-weight:700;color:var(--gold-l);
+  font-family:"DM Mono",monospace;
+  margin-bottom:12px;
+}
+
+/* セクション */
+.section{padding:28px 20px 0;}
+.section-head{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:14px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--border);
+}
+.section-tag{
+  font-size:10px;font-weight:700;letter-spacing:.12em;
+  font-family:"DM Mono",monospace;
+  border-radius:6px;padding:3px 8px;white-space:nowrap;
+}
+.tag-new{background:rgba(34,197,94,.12);border:1px solid var(--green-dim);color:var(--green);}
+.tag-fix{background:rgba(239,68,68,.12);border:1px solid var(--red-dim);color:var(--red);}
+.tag-improve{background:rgba(59,130,246,.12);border:1px solid var(--blue-dim);color:var(--blue);}
+.tag-design{background:rgba(168,85,247,.12);border:1px solid var(--purple-dim);color:var(--purple);}
+.section-title{font-size:16px;font-weight:900;}
+
+/* チェンジログ */
+.changelog{display:flex;flex-direction:column;gap:8px;}
+.change-item{
+  display:flex;gap:12px;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:14px;
+  position:relative;
+  overflow:hidden;
+}
+.change-item::before{
+  content:'';
+  position:absolute;left:0;top:0;bottom:0;width:3px;
+}
+.change-item.new::before{background:var(--green);}
+.change-item.fix::before{background:var(--red);}
+.change-item.improve::before{background:var(--blue);}
+.change-item.design::before{background:var(--purple);}
+
+.change-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+.change-body{}
+.change-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.change-desc{font-size:12px;color:var(--text2);line-height:1.7;}
+.change-desc strong{color:var(--gold-l);}
+.change-desc code{
+  font-family:"DM Mono",monospace;font-size:11px;
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--border);
+  border-radius:4px;padding:1px 5px;color:var(--text2);
+}
+
+/* 区切り */
+.divider{height:1px;background:var(--border);margin:4px 20px 0;}
+
+/* ノート */
+.note{
+  margin:10px 0 0;
+  background:rgba(201,147,58,.06);
+  border:1px solid var(--gold-dim);
+  border-left:3px solid var(--gold);
+  border-radius:0 var(--r) var(--r) 0;
+  padding:11px 14px;
+  font-size:12px;color:var(--text2);line-height:1.7;
+}
+.note strong{color:var(--gold-l);}
+
+/* フッター */
+.footer{
+  padding:32px 20px;
+  text-align:center;
+  color:var(--text3);
+  font-size:11px;
+  font-family:"DM Mono",monospace;
+  letter-spacing:.08em;
+  border-top:1px solid var(--border);
+  margin-top:32px;
+}
+.footer span{color:var(--gold);margin:0 4px;}
+</style>
+</head>
+<body>
+
+<!-- ヘッダー -->
+<div class="header">
+  <a class="header-back" href="./index.html">←</a>
+  <div>
+    <div class="header-title">アップデート情報</div>
+    <div class="header-sub">UPDATE NOTES</div>
+  </div>
+</div>
+
+<!-- ヒーロー -->
+<div class="hero">
+  <div class="hero-eyebrow">RELEASE NOTES</div>
+  <div class="version-badge">🆕 v2025.04.23</div>
+  <div class="hero-title">大幅アップデート<br><span>— UI刷新 &amp; 機能追加 —</span></div>
+  <div class="hero-meta">2025.04.22 〜 04.23 リリース</div>
+</div>
+
+<!-- ===== NEW: 下部メニュー刷新 ===== -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-tag tag-new">NEW</span>
+    <span class="section-title">下部メニューを全面刷新</span>
+  </div>
+  <div class="changelog">
+
+    <div class="change-item new">
+      <div class="change-icon">⬆️</div>
+      <div class="change-body">
+        <div class="change-title">スワイプメニューを導入</div>
+        <div class="change-desc">
+          画面下部に横棒ハンドルを設置しました。<strong>タップ</strong>または<strong>上にスワイプ</strong>するとメニューが展開されます。展開メニューには「分析グラフ・CSV読込・データ保存・CSV出力」の4つが並びます。反応しにくい問題も修正し、スワイプ中にメニューが追従するアニメーションを追加しました。
+        </div>
+      </div>
+    </div>
+
+    <div class="change-item new">
+      <div class="change-icon">🏠</div>
+      <div class="change-body">
+        <div class="change-title">ホームボタンを追加</div>
+        <div class="change-desc">
+          以前のカレンダーボタンをホームボタンに変更しました。どのページからでもタップするとカレンダー画面（メイン）に戻れます。
+        </div>
+      </div>
+    </div>
+
+    <div class="change-item new">
+      <div class="change-icon">📷</div>
+      <div class="change-body">
+        <div class="change-title">QRコードリーダーを新設（中央ボタン）</div>
+        <div class="change-desc">
+          メニュー中央にQR読取ボタンを配置しました（少し大きめ）。タップするとカメラが起動し、QRコードを自動で認識します。<strong>スキャン成功時にバイブレーション</strong>が鳴り、URLであれば「URLを開く」ボタンが表示されます。コピーボタンでテキストをクリップボードに保存することもできます。ボタンアイコンはオリジナルのQRデザインを使用しています。
+        </div>
+      </div>
+    </div>
+
+    <div class="change-item new">
+      <div class="change-icon">💳</div>
+      <div class="change-body">
+        <div class="change-title">ウォレットボタンを新設</div>
+        <div class="change-desc">
+          タップすると決済アプリ一覧モーダルが開きます。対応アプリは以下の7つです。<br>
+          <strong>PayPay・au PAY・楽天ペイ・majica・Kyash</strong>の5アプリに対応。
+          アプリがインストール済みの場合は自動で起動し、未インストールの場合はApp Store / Google Playへ案内します（iOS・Android自動判別）。
+        </div>
+      </div>
+    </div>
+
+    <div class="change-item new">
+      <div class="change-icon">🤖</div>
+      <div class="change-body">
+        <div class="change-title">下部メニューをLMボタンに置き換え・収支AIをヘッダーに直接設置</div>
+        <div class="change-desc">
+          下部メニューのAIボタンを <strong>📓TikTok LM</strong> ボタンに変更しました。タップするとNotebookLMが直接別タブで開きます。収支AIは <strong>カレンダーページのヘッダー右側に 🤖収支AI ボタンを直接設置</strong>し、1タップで開けます。
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===== IMPROVE: UI改善 ===== -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-tag tag-improve">IMPROVE</span>
+    <span class="section-title">UI・操作性の改善</span>
+  </div>
+  <div class="changelog">
+
+    <div class="change-item improve">
+      <div class="change-icon">🔝</div>
+      <div class="change-body">
+        <div class="change-title">ヘッダーに🤖収支AIボタンを直接配置・📓LMは下部メニューへ</div>
+        <div class="change-desc">
+          カレンダーページのヘッダー右側に <strong>🤖収支AI</strong> ボタンを直接設置しました。<strong>📓TikTok LM</strong> は下部メニューに移動し、タップするとNotebookLMが直接別タブで開きます。モーダルや中間画面を挟まないシンプルな構成にしました。
+        </div>
+      </div>
+    </div>
+
+    <div class="change-item improve">
+      <div class="change-icon">📋</div>
+      <div class="change-body">
+        <div class="change-title">フッターカードのボタン順序を変更</div>
+        <div class="change-desc">
+          カレンダー画面下部のカードボタンを使いやすい順に並べ替えました。<br>
+          <strong>CSV読込 → データ保存 → CSV出力 → FAQ</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="change-item improve">
+      <div class="change-icon">💬</div>
+      <div class="change-body">
+        <div class="change-title">LMモーダルの説明文を変更</div>
+        <div class="change-desc">
+          「NotebookLMはセキュリティの関係でアプリ内に埋め込めません」という技術的な説明から、<strong>「TikTok Liteに関する質問はこちらからできます」</strong>というユーザー向けの表現に変更しました。また、モーダル外をタップしても閉じるようになりました。
+        </div>
+      </div>
+    </div>
+
+    <div class="change-item improve">
+      <div class="change-icon">📂</div>
+      <div class="change-body">
+        <div class="change-title">CSVモーダルの横棒でスワイプ閉じを実装</div>
+        <div class="change-desc">
+          CSV読込モーダル上部の横棒を下にドラッグするとモーダルが閉じるようになりました。
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===== FIX: バグ修正 ===== -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-tag tag-fix">FIX</span>
+    <span class="section-title">バグ修正</span>
+  </div>
+  <div class="changelog">
+
+    <div class="change-item fix">
+      <div class="change-icon">🤖</div>
+      <div class="change-body">
+        <div class="change-title">AIアシスタントをAnthropicのAPIに直接接続</div>
+        <div class="change-desc">
+          Cloudflare Worker（<code>eraberu-ai.mikasahahappy0526.workers.dev</code>）が <code>Host not in allowlist</code> でブロックしていたため、Worker経由を完全廃止。<strong>Anthropic APIに直接fetch</strong>する方式に変更しました。モデルは <code>claude-haiku-4-5-20251001</code> を使用。収支データを渡して回答する本来の機能も維持しています。
+        </div>
+      </div>
+    </div>
+
+    <div class="change-item fix">
+      <div class="change-icon">💳</div>
+      <div class="change-body">
+        <div class="change-title">ウォレットボタンが一切動作しない問題を修正</div>
+        <div class="change-desc">
+          以前の実装では <code>iframe</code> を使ってURLスキームを起動しようとしていましたが、iOS・Androidともに動作しませんでした。hidden <code>&lt;a&gt;</code> タグの <code>.click()</code> 方式に変更し、アプリ起動後は <code>document.hidden</code> でバックグラウンド遷移を検知することで、未インストール時のみストアへ誘導するよう改善しました。
+        </div>
+      </div>
+    </div>
+
+    <div class="change-item fix">
+      <div class="change-icon">🟢</div>
+      <div class="change-body">
+        <div class="change-title">iAEON・d払いボタンを削除</div>
+        <div class="change-desc">
+          URLスキームの動作確認が取れないため、iAEONおよびd払いのボタンを削除しました。ウォレットは現在 PayPay・au PAY・楽天ペイ・majica・Kyash の5アプリ対応です。
+        </div>
+      </div>
+    </div>
+
+    <div class="change-item fix">
+      <div class="change-icon">⚙️</div>
+      <div class="change-body">
+        <div class="change-title">スワイプメニューが横棒を操作しても反応しない問題を修正</div>
+        <div class="change-desc">
+          スワイプメニューのJavaScriptがDOMより前に実行されていたため、要素が取得できずに初期化が失敗していました。scriptタグをbody末尾に移動し確実にDOMが生成された後に実行されるよう修正しました。
+        </div>
+      </div>
+    </div>
+
+    <div class="change-item fix">
+      <div class="change-icon">🔍</div>
+      <div class="change-body">
+        <div class="change-title">AIアシスタントのエラーメッセージを改善</div>
+        <div class="change-desc">
+          Cloudflare WorkerのCORSエラー（<code>Host not in allowlist</code>）が発生した際、「エラー: Failed to fetch」のような不明なメッセージの代わりに、具体的な対処法を日本語で案内するよう改善しました。
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="note"><strong>収支AIについて：</strong>Anthropic APIに直接接続して動作します。CSVデータを読み込んだ後に質問すると、実際の収支データを元に回答します。</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===== DESIGN: デザイン刷新 ===== -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-tag tag-design">DESIGN</span>
+    <span class="section-title">デザイン刷新</span>
+  </div>
+  <div class="changelog">
+
+    <div class="change-item design">
+      <div class="change-icon">📖</div>
+      <div class="change-body">
+        <div class="change-title">使い方ガイド（guide.html）を全面リニューアル</div>
+        <div class="change-desc">
+          キャラクター要素を削除し、<strong>黒背景・大人テイスト</strong>のデザインに刷新しました。最新の機能（スワイプメニュー・ウォレット・QR読取・AIメニュー）に対応した内容に全面的に書き直し、目次付き8セクション構成で分かりやすく整理しました。
+        </div>
+      </div>
+    </div>
+
+    <div class="change-item design">
+      <div class="change-icon">📷</div>
+      <div class="change-body">
+        <div class="change-title">QRボタンのアイコンをカスタム画像に変更</div>
+        <div class="change-desc">
+          QR読取ボタンの絵文字アイコンをオリジナルのQRデザイン画像に変更しました。黒背景を透過処理し、ゴールドの丸背景に自然に馴染むよう加工しています。
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- フッター -->
+<div class="footer">
+  えらべるPay 収支表<span>·</span>UPDATE NOTES<span>·</span>v2025.04.23
+</div>
+
+</body>
+</html>

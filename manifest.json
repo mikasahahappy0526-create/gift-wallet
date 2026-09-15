@@ -1,0 +1,19 @@
+{
+  "name": "えらべるPay 収支表",
+  "short_name": "えらべるPay",
+  "description": "えらべるPayのチャージ履歴をカレンダーで見える化するツール",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f5b731",
+  "theme_color": "#f5b731",
+  "orientation": "portrait",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "./favicon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

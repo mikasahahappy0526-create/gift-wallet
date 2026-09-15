@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="./favicon.ico" sizes="any">
+<link rel="icon" href="./favicon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>使い方ガイド — えらべるPay 収支表</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0a;
+  --bg2:#111111;
+  --bg3:#1a1a1a;
+  --border:#2a2a2a;
+  --gold:#c9933a;
+  --gold-l:#e8b86d;
+  --gold-dim:#7a5520;
+  --text:#f0f0f0;
+  --text2:#a0a0a0;
+  --text3:#606060;
+  --white:#ffffff;
+  --r:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:"Noto Sans JP",sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  max-width:480px;
+  margin:0 auto;
+  padding-bottom:60px;
+}
+
+/* ヘッダー */
+.header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(10,10,10,.95);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:16px 20px 14px;
+  display:flex;align-items:center;gap:12px;
+}
+.header-back{
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:8px;
+  width:36px;height:36px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;cursor:pointer;
+  color:var(--text2);
+  text-decoration:none;
+  transition:border-color .2s,color .2s;
+  flex-shrink:0;
+}
+.header-back:hover{border-color:var(--gold);color:var(--gold);}
+.header-title{
+  font-size:15px;font-weight:700;
+  letter-spacing:.06em;
+  color:var(--text);
+}
+.header-sub{font-size:10px;color:var(--text3);margin-top:2px;font-family:"DM Mono",monospace;letter-spacing:.08em;}
+
+/* ヒーロー */
+.hero{
+  padding:32px 20px 24px;
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(160deg,#111 0%,#0d0d0d 100%);
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';
+  position:absolute;top:-40px;right:-40px;
+  width:180px;height:180px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(201,147,58,.12) 0%,transparent 70%);
+  pointer-events:none;
+}
+.hero-label{
+  font-size:10px;font-weight:700;letter-spacing:.2em;
+  color:var(--gold);text-transform:uppercase;
+  font-family:"DM Mono",monospace;
+  margin-bottom:10px;
+}
+.hero-title{font-size:26px;font-weight:900;line-height:1.2;margin-bottom:10px;}
+.hero-title span{color:var(--gold);}
+.hero-desc{font-size:13px;color:var(--text2);line-height:1.7;}
+
+/* 目次 */
+.toc{
+  padding:20px 20px 0;
+  display:flex;flex-direction:column;gap:6px;
+}
+.toc-title{font-size:10px;font-weight:700;letter-spacing:.15em;color:var(--text3);text-transform:uppercase;font-family:"DM Mono",monospace;margin-bottom:6px;}
+.toc-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  text-decoration:none;
+  color:var(--text2);
+  font-size:13px;font-weight:500;
+  transition:border-color .2s,color .2s,background .2s;
+}
+.toc-item:hover{border-color:var(--gold-dim);color:var(--gold-l);background:rgba(201,147,58,.06);}
+.toc-num{font-family:"DM Mono",monospace;font-size:11px;color:var(--gold);width:20px;flex-shrink:0;}
+
+/* セクション */
+.section{padding:32px 20px 0;}
+.section-anchor{display:block;height:1px;margin-top:-64px;padding-top:64px;}
+.section-head{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:18px;
+  padding-bottom:14px;
+  border-bottom:1px solid var(--border);
+}
+.section-num{
+  font-family:"DM Mono",monospace;
+  font-size:11px;color:var(--gold);
+  background:rgba(201,147,58,.1);
+  border:1px solid var(--gold-dim);
+  border-radius:6px;
+  padding:3px 8px;
+  white-space:nowrap;
+}
+.section-title{font-size:17px;font-weight:900;}
+
+/* カード */
+.card{
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:16px;
+  margin-bottom:10px;
+}
+.card-title{
+  font-size:13px;font-weight:700;
+  color:var(--gold-l);
+  margin-bottom:8px;
+  display:flex;align-items:center;gap:6px;
+}
+.card-body{font-size:13px;color:var(--text2);line-height:1.75;}
+.card-body strong{color:var(--text);font-weight:700;}
+
+/* ステップリスト */
+.steps{display:flex;flex-direction:column;gap:0;}
+.step{
+  display:flex;gap:14px;
+  padding:14px 0;
+  border-bottom:1px solid var(--border);
+}
+.step:last-child{border-bottom:none;}
+.step-num{
+  width:26px;height:26px;flex-shrink:0;
+  border-radius:50%;
+  background:var(--gold);
+  color:#000;
+  font-size:12px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;
+  font-family:"DM Mono",monospace;
+  margin-top:1px;
+}
+.step-content{flex:1;}
+.step-label{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.step-desc{font-size:12px;color:var(--text2);line-height:1.7;}
+
+/* バッジ */
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  background:rgba(201,147,58,.12);
+  border:1px solid var(--gold-dim);
+  border-radius:6px;
+  padding:3px 8px;
+  font-size:11px;font-weight:700;
+  color:var(--gold-l);
+  font-family:"DM Mono",monospace;
+  margin:2px 2px 2px 0;
+}
+
+/* ボタン一覧 */
+.btn-list{display:flex;flex-direction:column;gap:8px;}
+.btn-item{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:12px 14px;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+}
+.btn-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+.btn-info{}
+.btn-name{font-size:13px;font-weight:700;color:var(--gold-l);margin-bottom:3px;}
+.btn-desc{font-size:12px;color:var(--text2);line-height:1.6;}
+
+/* ヒント */
+.hint{
+  background:rgba(201,147,58,.06);
+  border:1px solid var(--gold-dim);
+  border-left:3px solid var(--gold);
+  border-radius:0 var(--r) var(--r) 0;
+  padding:12px 14px;
+  font-size:12px;color:var(--text2);line-height:1.7;
+  margin-top:10px;
+}
+.hint strong{color:var(--gold-l);}
+
+/* divider */
+.divider{height:1px;background:var(--border);margin:8px 20px 0;}
+
+/* フッター */
+.footer{
+  padding:32px 20px;
+  text-align:center;
+  color:var(--text3);
+  font-size:11px;
+  font-family:"DM Mono",monospace;
+  letter-spacing:.08em;
+  border-top:1px solid var(--border);
+  margin-top:32px;
+}
+.footer span{color:var(--gold);margin:0 4px;}
+</style>
+</head>
+<body>
+
+<!-- ヘッダー -->
+<div class="header">
+  <a class="header-back" href="./index.html">←</a>
+  <div>
+    <div class="header-title">使い方ガイド</div>
+    <div class="header-sub">GUIDE / えらべるPay 収支表</div>
+  </div>
+</div>
+
+<!-- ヒーロー -->
+<div class="hero">
+  <div class="hero-label">USAGE GUIDE</div>
+  <div class="hero-title">えらべるPay<br><span>収支表</span>の使い方</div>
+  <div class="hero-desc">えらべるPayのCSVデータを読み込んで、収支をカレンダーで可視化・分析するアプリです。</div>
+</div>
+
+<!-- 目次 -->
+<div class="toc">
+  <div class="toc-title">CONTENTS</div>
+  <a class="toc-item" href="#sec1"><span class="toc-num">01</span>基本の流れ（クイックスタート）</a>
+  <a class="toc-item" href="#sec2"><span class="toc-num">02</span>下部メニューの使い方</a>
+  <a class="toc-item" href="#sec3"><span class="toc-num">03</span>CSVデータの読み込み方</a>
+  <a class="toc-item" href="#sec4"><span class="toc-num">04</span>カレンダー画面の見方</a>
+  <a class="toc-item" href="#sec5"><span class="toc-num">05</span>データ保存・出力</a>
+  <a class="toc-item" href="#sec6"><span class="toc-num">06</span>AIアシスタント・TikTok質問</a>
+  <a class="toc-item" href="#sec7"><span class="toc-num">07</span>ウォレット・QR読取</a>
+  <a class="toc-item" href="#sec8"><span class="toc-num">08</span>よくある質問</a>
+</div>
+
+<!-- ===== セクション 1 ===== -->
+<div class="section">
+  <span class="section-anchor" id="sec1"></span>
+  <div class="section-head">
+    <span class="section-num">01</span>
+    <span class="section-title">基本の流れ（クイックスタート）</span>
+  </div>
+  <div class="card">
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-label">ギフトウォレットからCSVをダウンロード</div>
+          <div class="step-desc">ギフトウォレット（えらべるPay）のマイページから、ポイント履歴のCSVファイルをダウンロードします。PayPayのCSVにも対応しています。カレンダー画面下部の「🎁ギフト」ボタンからマイページに直接ジャンプできます。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-label">📂 CSV読込ボタンをタップ</div>
+          <div class="step-desc">カレンダー画面下部の「読込」ボタン、またはカード内の「CSV読込」ボタンをタップしてCSVファイルを選択します。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-label">データを読み込む</div>
+          <div class="step-desc">ファイル選択後、「全データ読込」または月ごとの「読込」ボタンを押すとカレンダーに反映されます。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-label">💾 自動で保存される</div>
+          <div class="step-desc">CSVを読み込むと自動的に端末へ保存され、次回起動時にも読み込まれます。同じ月を読み込み直すと自動的に最新データで上書きされます（手動での保存操作は不要です）。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===== セクション 2 ===== -->
+<div class="section">
+  <span class="section-anchor" id="sec2"></span>
+  <div class="section-head">
+    <span class="section-num">02</span>
+    <span class="section-title">下部メニューの使い方</span>
+  </div>
+
+  <div class="hint"><strong>ヒント：</strong>横棒をタップまたは上にスワイプすると、追加メニューが展開されます。</div>
+
+  <div class="btn-list" style="margin-top:12px;">
+    <div class="btn-item">
+      <div class="btn-icon">🏠</div>
+      <div class="btn-info">
+        <div class="btn-name">ホーム</div>
+        <div class="btn-desc">カレンダー画面に戻ります。どのページからでもタップするとメインに戻れます。</div>
+      </div>
+    </div>
+    <div class="btn-item">
+      <div class="btn-icon">💴</div>
+      <div class="btn-info">
+        <div class="btn-name">100円抜き</div>
+        <div class="btn-desc">毎日の100円積立をシミュレーションするページです。習慣化のサポートに使えます。</div>
+      </div>
+    </div>
+    <div class="btn-item">
+      <div class="btn-icon">📷</div>
+      <div class="btn-info">
+        <div class="btn-name">QR読取（中央ボタン）</div>
+        <div class="btn-desc">カメラを起動してQRコードを読み取ります。URLは自動でリンクになり、そのままブラウザで開けます。</div>
+      </div>
+    </div>
+    <div class="btn-item">
+      <div class="btn-icon">💳</div>
+      <div class="btn-info">
+        <div class="btn-name">ウォレット</div>
+        <div class="btn-desc">各QRコード決済アプリ（PayPay・au PAY・楽天ペイ・majica・Kyash）に直接ジャンプできます。アプリがインストール済みの場合は自動で起動し、未インストールの場合はストアへ案内します。</div>
+      </div>
+    </div>
+    <div class="btn-item">
+      <div class="btn-icon">📓</div>
+      <div class="btn-info">
+        <div class="btn-name">TikTok LM（下部）／ 🤖収支AI（ヘッダー）</div>
+        <div class="btn-desc">下部メニューの <strong>📓TikTok LM</strong> ボタンをタップするとNotebookLMが直接別タブで開きます。収支AIはカレンダーページのヘッダー右側 <strong>🤖収支AI</strong> ボタンから1タップで開けます。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint" style="margin-top:12px;"><strong>展開メニュー（横棒を上にスワイプ）：</strong>分析グラフ・アップデート情報・APN設定が表示されます。</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===== セクション 3 ===== -->
+<div class="section">
+  <span class="section-anchor" id="sec3"></span>
+  <div class="section-head">
+    <span class="section-num">03</span>
+    <span class="section-title">CSVデータの読み込み方</span>
+  </div>
+  <div class="card">
+    <div class="card-title">📂 対応CSVフォーマット</div>
+    <div class="card-body">
+      <span class="badge">えらべるPay</span>
+      <span class="badge">ギフトウォレット</span>
+      <span class="badge">PayPay</span>
+      <br>の3種類のCSVに対応しています。複数ファイルを同時に選択して一括読み込みも可能です。
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">💾 保存済みデータからの読み込み</div>
+    <div class="card-body">
+      CSVモーダル内の「保存済みデータ」セクションから、過去に保存した月のデータを選んで読み込めます。<br>「全データ読込」を使うと保存された全月のデータをまとめて表示できます。
+    </div>
+  </div>
+  <div class="hint"><strong>サンプルデータ：</strong>「サンプル」ボタンで動作を確認できます。</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===== セクション 4 ===== -->
+<div class="section">
+  <span class="section-anchor" id="sec4"></span>
+  <div class="section-head">
+    <span class="section-num">04</span>
+    <span class="section-title">カレンダー画面の見方</span>
+  </div>
+  <div class="card">
+    <div class="card-title">📊 上部ステータスバー</div>
+    <div class="card-body">
+      <strong>売上合計</strong>：全期間の合計金額<br>
+      <strong>月平均</strong>：月ごとの平均金額<br>
+      <strong>最高月</strong>：最も稼いだ月<br>
+      <strong>期間</strong>：データの期間
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">🎖️ 称号バナー</div>
+    <div class="card-body">当月の実績に応じて称号が付与されます。チャージ王・コツコツ職人など、稼ぎっぷりに応じて変化します。</div>
+  </div>
+  <div class="card">
+    <div class="card-title">📅 カレンダーセル</div>
+    <div class="card-body">
+      日付セルをタップすると、その日の詳細（金額・メモ）が確認でき、メモの追加・編集もできます。<br>
+      <strong>🥇🥈🥉</strong> のメダルは高額出金の日に表示されます。
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📈 月末予測</div>
+    <div class="card-body">月の途中でも、現在のペースから月末の合計金額を予測して表示します。</div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===== セクション 5 ===== -->
+<div class="section">
+  <span class="section-anchor" id="sec5"></span>
+  <div class="section-head">
+    <span class="section-num">05</span>
+    <span class="section-title">データ保存・出力</span>
+  </div>
+  <div class="btn-list">
+    <div class="btn-item">
+      <div class="btn-icon">💾</div>
+      <div class="btn-info">
+        <div class="btn-name">データ保存</div>
+        <div class="btn-desc">現在表示中の月のデータを端末に保存します。次回起動時に自動で読み込まれます。複数月のデータをそれぞれ保存しておくと便利です。</div>
+      </div>
+    </div>
+    <div class="btn-item">
+      <div class="btn-icon">📊</div>
+      <div class="btn-info">
+        <div class="btn-name">CSV出力</div>
+        <div class="btn-desc">現在表示中の月の集計データをCSV形式でダウンロードします。Excelやスプレッドシートで開けます。</div>
+      </div>
+    </div>
+  </div>
+  <div class="hint"><strong>注意：</strong>ブラウザのキャッシュをクリアすると保存データが消える場合があります。定期的にCSV出力でバックアップを取ることをおすすめします。</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===== セクション 6 ===== -->
+<div class="section">
+  <span class="section-anchor" id="sec6"></span>
+  <div class="section-head">
+    <span class="section-num">06</span>
+    <span class="section-title">AIアシスタント・TikTok質問</span>
+  </div>
+  <div class="card">
+    <div class="card-title">🤖 収支AIアシスタント</div>
+    <div class="card-body">
+      読み込んだ収支データを元に、AIが直接分析・アドバイスをします。専用のCloudflare Worker経由でAIサーバーに接続して動作します（APIキーはサーバー側で管理し、ブラウザには露出しません）。<br>
+      「先月と比べてどう？」「高額出金が多い日は？」などの自然な質問に答えてくれます。<br>
+      <span class="badge">クイック質問</span>からよく使う質問を選んで送ることもできます。<br><br>
+      <strong>開き方：</strong>カレンダーページのヘッダー右側 <strong>🤖収支AI</strong> ボタン
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📓 TikTok Lite質問（NotebookLM）</div>
+    <div class="card-body">
+      TikTok Liteのポイ活に関する情報をNotebookLMで質問できます。タップすると直接別タブで開きます。モーダルや中間画面はありません。<br><br>
+      <strong>開き方：</strong>下部メニューの <strong>📓TikTok LM</strong> ボタン
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===== セクション 7 ===== -->
+<div class="section">
+  <span class="section-anchor" id="sec7"></span>
+  <div class="section-head">
+    <span class="section-num">07</span>
+    <span class="section-title">ウォレット・QR読取</span>
+  </div>
+  <div class="card">
+    <div class="card-title">💳 ウォレット — 対応アプリ</div>
+    <div class="card-body">
+      <span class="badge">PayPay</span>
+      <span class="badge">au PAY</span>
+      <span class="badge">楽天ペイ</span>
+      <span class="badge">majica</span>
+      <span class="badge">Kyash</span>
+      <br><br>ボタンをタップするとアプリが起動します。インストールされていない場合は自動でApp Store / Google Playへ移動します。
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📷 QRコードリーダー</div>
+    <div class="card-body">
+      カメラでQRコードをスキャンします。<br>
+      • 読み取り成功でバイブレーションが鳴ります<br>
+      • URLの場合は「URLを開く」ボタンが表示されます<br>
+      • 「コピー」ボタンでテキストをコピーできます<br>
+      <br>初回起動時にカメラの許可が必要です。
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===== セクション 8 ===== -->
+<div class="section">
+  <span class="section-anchor" id="sec8"></span>
+  <div class="section-head">
+    <span class="section-num">08</span>
+    <span class="section-title">よくある質問</span>
+  </div>
+  <div class="card" style="margin-bottom:10px;">
+    <div class="card-title">Q. データが消えてしまった</div>
+    <div class="card-body">ブラウザのストレージ（localStorage）に保存しています。ブラウザのキャッシュ・サイトデータをクリアすると消える場合があります。定期的にCSV出力でバックアップを取ってください。</div>
+  </div>
+  <div class="card" style="margin-bottom:10px;">
+    <div class="card-title">Q. 収支AIが動かない・エラーが出る</div>
+    <div class="card-body">収支AIは専用のCloudflare Worker経由でAIサーバーに接続して動作します。エラーが出る場合はネットワーク接続をご確認ください。1日あたりの利用回数に上限があるため、上限に達した場合は翌日以降にお試しください。<br>TikTok LMは下部メニューの <strong>📓TikTok LM</strong> ボタンから開けます。</div>
+  </div>
+  <div class="card" style="margin-bottom:10px;">
+    <div class="card-title">Q. CSVが読み込めない</div>
+    <div class="card-body">えらべるPay・ギフトウォレット・PayPayの公式CSVに対応しています。他のフォーマットには対応していません。ファイルの文字コードはUTF-8またはShift-JISに対応しています。</div>
+  </div>
+  <div class="card" style="margin-bottom:10px;">
+    <div class="card-title">Q. ウォレットのボタンが反応しない</div>
+    <div class="card-body">現在 PayPay・au PAY・楽天ペイ・majica・Kyash の5アプリに対応しています。アプリがインストールされていない場合は自動でストアページへ移動します。ブラウザによってはポップアップブロックが働く場合があります。</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Q. ホーム画面に追加できる？</div>
+    <div class="card-body">
+      <strong>iOS（Safari）：</strong>共有ボタン → 「ホーム画面に追加」<br>
+      <strong>Android（Chrome）：</strong>メニュー → 「ホーム画面に追加」<br>
+      アイコンからアプリのように起動できます。
+    </div>
+  </div>
+</div>
+
+<!-- フッター -->
+<div class="footer">
+  えらべるPay 収支表<span>·</span>USAGE GUIDE<span>·</span>v2025
+</div>
+
+</body>
+</html>
