@@ -42,7 +42,7 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;-webkit-tap-highlight-color:transparent;}
 body{font-family:"DotGothic16",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;}
-.page{display:none;min-height:100vh;padding-bottom:calc(196px + env(safe-area-inset-bottom));}
+.page{display:none;min-height:100vh;padding-bottom:calc(236px + env(safe-area-inset-bottom));}
 .page.active{display:block;}
 #page-calendar.page.active{display:flex;flex-direction:column;}
 #calSectionRoot{flex:1;display:flex;flex-direction:column;min-height:0;}
@@ -110,7 +110,7 @@ body{font-family:"DotGothic16",sans-serif;background:var(--bg);color:var(--text)
 .f-bal-block{display:flex;flex-direction:column;min-width:0;}
 .f-bal-label{font-size:10px;font-weight:800;color:var(--gray);letter-spacing:.12em;font-family:'DM Mono',monospace;margin-bottom:3px;}
 .f-bal-value-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-#calBottomBar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(90px + env(safe-area-inset-bottom));width:100%;max-width:480px;z-index:350;background:var(--navy2);border-top:1px solid var(--border);box-shadow:0 -6px 18px rgba(0,0,0,.35);}
+#calBottomBar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(128px + env(safe-area-inset-bottom));width:100%;max-width:480px;z-index:350;background:var(--navy2);border-top:1px solid var(--border);box-shadow:0 -6px 18px rgba(0,0,0,.35);}
 .cal-section-tabs{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 10px 10px;margin:0;overflow-x:auto;-webkit-overflow-scrolling:touch;}
 .cal-section-tab{appearance:none;border:1px solid var(--border);background:var(--gray5);color:var(--text2);border-radius:999px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.04em;white-space:nowrap;flex-shrink:0;}
 .cal-section-tab.active{background:rgba(212,168,67,.18);border-color:rgba(212,168,67,.45);color:var(--gold);}
@@ -928,6 +928,31 @@ document.getElementById('uploadModal').addEventListener('click',function(e){
 
 // ===== PayPayジャンプ =====
 // ===== カレンダーページから直接ファイル選択 =====
+function csvLooksValid(parsed){
+  const hs=(parsed&&parsed.headers)||[];
+  if(!hs.length)return false;
+  if(parsed.type==='paypay')return true;
+  return hs.some(h=>/日付|種別|チャージ|ポイント|取引日|入金金額/.test(h));
+}
+function readCsvWithEncoding(file){
+  return new Promise(resolve=>{
+    const tryEnc=enc=>{
+      const r=new FileReader();
+      r.onload=ev=>resolve({text:String(ev.target.result||''),enc});
+      r.onerror=()=>resolve({text:'',enc});
+      r.readAsText(file,enc);
+    };
+    const r=new FileReader();
+    r.onload=ev=>{
+      const text=String(ev.target.result||'');
+      const parsed=parseCSV(text);
+      if(csvLooksValid(parsed)){resolve({text,enc:'UTF-8'});return;}
+      tryEnc('Shift_JIS');
+    };
+    r.onerror=()=>tryEnc('Shift_JIS');
+    r.readAsText(file,'UTF-8');
+  });
+}
 function handleCalFileSelect(e){
   const files=[...e.target.files];
   e.target.value='';
@@ -936,17 +961,20 @@ function handleCalFileSelect(e){
   if(!cs.length){showToast('CSVファイルを選択してください');return;}
   let loaded=0;
   cs.forEach(file=>{
-    const idx=slotData.findIndex(s=>s&&s.name===file.name);
-    const i=idx>=0?idx:slotData.length;
-    slotData[i]=null;
-    const r=new FileReader();
-    r.onload=ev=>{
-      const {headers:h,rows,type}=parseCSV(ev.target.result);
-      slotData[i]={rows,headers:h,name:file.name,size:file.size,checked:true,type};
+    readCsvWithEncoding(file).then(({text})=>{
+      const {headers:h,rows,type}=parseCSV(text);
+      let i;
+      if(type==='paypay'){
+        i=slotData.findIndex(s=>s&&s.type==='paypay');
+        if(i<0)i=slotData.length;
+      } else {
+        const idx=slotData.findIndex(s=>s&&s.name===file.name);
+        i=idx>=0?idx:slotData.length;
+      }
+      slotData[i]={rows,headers:h,name:type==='paypay'?'paypay_history.csv':file.name,size:file.size,checked:true,type};
       loaded++;
       if(loaded===cs.length) directAggregate();
-    };
-    r.readAsText(file,'UTF-8');
+    });
   });
 }
 
@@ -1075,6 +1103,11 @@ function directAggregate(){
   goPage('calendar');
   renderRefPanel();
   autoSaveLoadedMonths();
+  const pp=entries.filter(e=>e.source==='paypay').length;
+  const gw=entries.filter(e=>e.source!=='paypay').length;
+  if(typeof showToast==='function'){
+    showToast('取り込み完了 ギフト'+gw+'件 / PayPay'+pp+'件');
+  }
 }
 
 // ===== 参照ファイルパネル更新 =====
@@ -1405,7 +1438,7 @@ function renderAll(){
   allMonths.forEach(mk=>{
     const d=monthMap[mk];const pct=Math.round((d.total/maxTot)*100);
     const tr=document.createElement('tr');
-    tr.onclick=()=>{currentMonthIdx=allMonths.indexOf(mk);renderTabs();renderCalendar();document.getElementById('calCells').scrollIntoView({behavior:'smooth'});};
+    tr.onclick=()=>{currentMonthIdx=allMonths.indexOf(mk);if(window.setCalSectionTab)window.setCalSectionTab('calendar');renderTabs();renderCalendar();document.getElementById('calCells').scrollIntoView({behavior:'smooth'});};
     const [y,mo]=mk.split('/');
     tr.innerHTML=`<td style="font-weight:700">${y}年${parseInt(mo)}月</td>
       <td><span class="cb-badge">${d.count}件</span><div class="td-bar"><div class="td-fill" style="width:${pct}%"></div></div></td>
@@ -1693,7 +1726,7 @@ function renderTabs(){
       const b=document.createElement('button');
       b.className='mtab'+(isActive?' active':'')+(!hasData?' empty':'');
       b.textContent=mo+'月';b.title=y+'年'+mo+'月';b.disabled=!hasData;
-      if(hasData)b.onclick=()=>{currentMonthIdx=allMonths.indexOf(mk);renderTabs();renderCalendar();};
+      if(hasData)b.onclick=()=>{currentMonthIdx=allMonths.indexOf(mk);if(window.setCalSectionTab)window.setCalSectionTab('calendar');renderTabs();renderCalendar();};
       tabs.appendChild(b);
     }
   });
@@ -1706,7 +1739,9 @@ function renderTabs(){
 function changeMonth(d){
   const n=currentMonthIdx+d;
   if(n<0||n>=allMonths.length)return;
-  currentMonthIdx=n;renderTabs();renderCalendar();
+  currentMonthIdx=n;
+  if(window.setCalSectionTab)window.setCalSectionTab('calendar');
+  renderTabs();renderCalendar();
 }
 
 // ===== カレンダー描画 =====
@@ -2122,6 +2157,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       apply(btn.getAttribute('data-cal-tab') || 'calendar');
     });
   }
+  window.setCalSectionTab = apply;
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', bind);
   else bind();
 })();
@@ -2529,6 +2565,10 @@ function aiQuickSend(text){
       <div class="smenu-expand" id="smenuExpand">
         <div class="smenu-expand-title">その他のメニュー</div>
         <div class="smenu-grid">
+          <button class="smenu-grid-btn" onclick="document.getElementById('calFileInput').click();collapseSwipeMenu()">
+            <span class="smenu-grid-icon">🔴</span>
+            <span class="smenu-grid-label">PayPay CSV</span>
+          </button>
           <button class="smenu-grid-btn" id="smenu-tab-analytics" onclick="switchTab('analytics');collapseSwipeMenu()">
             <span class="smenu-grid-icon">📊</span>
             <span class="smenu-grid-label">分析グラフ</span>

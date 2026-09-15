@@ -1,10 +1,13 @@
 package net.giftwallet.app
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -13,6 +16,7 @@ import android.webkit.CookieManager
 import android.webkit.DownloadListener
 import android.webkit.JavascriptInterface
 import android.webkit.URLUtil
+import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
@@ -20,6 +24,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import org.json.JSONArray
 import org.json.JSONObject
@@ -40,6 +45,27 @@ class MainActivity : AppCompatActivity() {
     private val chargeQueue: ArrayDeque<String> = ArrayDeque()
     private var currentChargeUrl: String? = null
     private var chargeBusy = false
+    private var filePathCallback: ValueCallback<Array<Uri>>? = null
+    private val fileChooserLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            val cb = filePathCallback
+            filePathCallback = null
+            if (cb == null) return@registerForActivityResult
+            val uris: Array<Uri>? =
+                if (result.resultCode == Activity.RESULT_OK) {
+                    val data = result.data
+                    val clip = data?.clipData
+                    when {
+                        clip != null && clip.itemCount > 0 ->
+                            Array(clip.itemCount) { i -> clip.getItemAt(i).uri }
+                        data?.data != null -> arrayOf(data.data!!)
+                        else -> null
+                    }
+                } else {
+                    null
+                }
+            cb.onReceiveValue(uris)
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -104,7 +130,45 @@ class MainActivity : AppCompatActivity() {
             handleDownload(url, userAgent, contentDisposition, mimeType)
         })
 
-        webView.webChromeClient = WebChromeClient()
+        webView.webChromeClient = object : WebChromeClient() {
+            override fun onShowFileChooser(
+                webView: WebView?,
+                filePathCallback: ValueCallback<Array<Uri>>?,
+                fileChooserParams: FileChooserParams?
+            ): Boolean {
+                this@MainActivity.filePathCallback?.onReceiveValue(null)
+                this@MainActivity.filePathCallback = filePathCallback
+                val intent = try {
+                    fileChooserParams?.createIntent()
+                } catch (e: Exception) {
+                    null
+                } ?: Intent(Intent.ACTION_GET_CONTENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "*/*"
+                }
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                intent.putExtra(
+                    Intent.EXTRA_MIME_TYPES,
+                    arrayOf(
+                        "text/csv",
+                        "text/comma-separated-values",
+                        "text/plain",
+                        "application/csv",
+                        "application/vnd.ms-excel",
+                        "*/*"
+                    )
+                )
+                return try {
+                    fileChooserLauncher.launch(Intent.createChooser(intent, "CSVを選択"))
+                    true
+                } catch (e: Exception) {
+                    this@MainActivity.filePathCallback = null
+                    filePathCallback?.onReceiveValue(null)
+                    Toast.makeText(this@MainActivity, "ファイル選択を開けませんでした", Toast.LENGTH_SHORT).show()
+                    true
+                }
+            }
+        }
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(
                 view: WebView,
