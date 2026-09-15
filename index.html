@@ -98,6 +98,11 @@ body{font-family:"DotGothic16",sans-serif;background:var(--bg);color:var(--text)
 .footer-card{background:var(--navy2);border-radius:var(--r);box-shadow:var(--sh2);padding:16px;display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);}
 .f-total-val{font-size:clamp(32px,9vw,48px);font-weight:900;color:var(--gold);font-family:"DM Mono",monospace;letter-spacing:-2px;line-height:1;text-shadow:0 0 30px rgba(212,168,67,.4);}
 .f-total-sub{font-size:11px;color:var(--gray);margin-top:4px;letter-spacing:.04em;}
+.f-total-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;max-width:100%;}
+.f-total-bal{font-size:clamp(22px,6vw,36px);font-weight:900;color:var(--gold);font-family:"DM Mono",monospace;letter-spacing:-1px;line-height:1;text-shadow:0 0 24px rgba(212,168,67,.35);}
+.f-total-slash{color:var(--gray);font-size:clamp(18px,5vw,28px);font-weight:700;font-family:"DM Mono",monospace;letter-spacing:0;line-height:1;}
+#gwHideBalanceBtn{appearance:none;border:1px solid rgba(212,168,67,.35);background:rgba(212,168,67,.1);color:var(--gold);border-radius:999px;width:34px;height:34px;padding:0;font-size:16px;line-height:1;cursor:pointer;flex-shrink:0;align-self:center;display:inline-flex;align-items:center;justify-content:center;}
+#gwHideBalanceBtn:active{transform:scale(.94);}
 
 /* ===== フッターボタン行 ===== */
 .footer-btns{display:flex;gap:6px;margin-top:10px;}
@@ -484,8 +489,13 @@ tr{cursor:pointer;}
       <!-- 月合計 + コンパクトファイルリスト -->
       <div style="display:flex;align-items:center;gap:12px;width:100%;margin-bottom:14px;">
         <div style="flex:1;min-width:0;">
-          <div style="font-size:9px;font-weight:700;color:var(--gray);letter-spacing:.12em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:4px;">MONTHLY TOTAL CHARGE</div>
-          <div class="f-total-val" id="calMonthTotal">¥0</div>
+          <div style="font-size:9px;font-weight:700;color:var(--gray);letter-spacing:.12em;font-family:'DM Mono',monospace;margin-bottom:4px;">月間合計</div>
+          <div class="f-total-row">
+            <div class="f-total-val" id="calMonthTotal">¥0</div>
+            <span class="f-total-slash" id="gwBalSlash">/</span>
+            <span class="f-total-bal" id="gwWalletBalance">—</span>
+            <button type="button" id="gwHideBalanceBtn" title="目隠し" aria-label="残高を隠す">👁</button>
+          </div>
           <div class="f-total-sub" id="calMonthSub" onclick="openThresholdModal()" style="cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" data-hint="タップすると「高額出金」の基準額を自由に変更できます">高額出金 0回</div>
         </div>
         <div id="compactFileList" style="display:none;flex-direction:column;gap:4px;max-width:48%;" data-hint="タップでファイルを選んで絞り込み集計できます"></div>
@@ -1730,6 +1740,7 @@ function renderCalendar(){
     totalStyle='font-size:30px;background:linear-gradient(90deg,#ff6b6b,#ffd93d,#6bcb77,#4d96ff,#c77dff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 3px 14px rgba(150,100,255,.5));letter-spacing:.03em;animation:goldPulse 1.8s ease-in-out infinite;';
   }
   totalEl.style.cssText=totalStyle+'font-family:"DM Mono",monospace;font-weight:900;';
+  try{ window.__gwLastYenText = totalEl.textContent; if(typeof window.applyGwHideMask==='function') window.applyGwHideMask(); }catch(_e){}
   const o3k=Object.values(md.days||{}).reduce((s,a)=>s+a.filter(v=>v>=getHighAmountThreshold()).length,0);
   document.getElementById('calMonthSub').textContent='高額出金 '+o3k+'回（¥'+fmt(getHighAmountThreshold())+'以上）';
   const dim=new Date(y,mo,0).getDate();
@@ -2068,6 +2079,87 @@ document.addEventListener('DOMContentLoaded',()=>{
   tabs.addEventListener('touchmove',e=>{const dx=e.touches[0].pageX-startX;tabs.scrollLeft=scrollLeft-dx;},{passive:true});
 });
 </script>
+
+<script>
+// ===== Gift Wallet 残高表示 + 目隠し =====
+(function(){
+  var HIDE_KEY = 'gw_hide_balance';
+  var lastPoints = null;
+
+  function fmtPts(n){
+    try { return Number(n).toLocaleString('ja-JP'); } catch (e) { return String(n); }
+  }
+  function isHidden(){ return localStorage.getItem(HIDE_KEY) === '1'; }
+
+  function applyGwHideMask(){
+    var hidden = isHidden();
+    var yen = document.getElementById('calMonthTotal');
+    var bal = document.getElementById('gwWalletBalance');
+    var btn = document.getElementById('gwHideBalanceBtn');
+    if (yen) {
+      if (yen.textContent !== '••••') window.__gwLastYenText = yen.textContent;
+      yen.textContent = hidden ? '••••' : (window.__gwLastYenText || yen.textContent || '¥0');
+    }
+    if (bal) {
+      bal.textContent = hidden ? '••••' : (lastPoints === null ? '—' : fmtPts(lastPoints));
+    }
+    if (btn) {
+      btn.setAttribute('aria-pressed', hidden ? 'true' : 'false');
+      btn.setAttribute('aria-label', hidden ? '残高を表示' : '残高を隠す');
+      btn.textContent = hidden ? '🙈' : '👁';
+    }
+  }
+  window.applyGwHideMask = applyGwHideMask;
+
+  function setPoints(raw){
+    if (raw === null || raw === undefined || raw === '' || raw === '—' || raw === 'null') {
+      lastPoints = null;
+    } else {
+      var n = parseInt(String(raw).replace(/[^0-9]/g, ''), 10);
+      lastPoints = isNaN(n) ? null : n;
+    }
+    applyGwHideMask();
+  }
+  window.__gwSetWalletBalanceDisplay = setPoints;
+
+  function pollBalance(){
+    try {
+      var v = null;
+      if (window.GiftWallet && typeof window.GiftWallet.getWalletBalance === 'function') {
+        v = window.GiftWallet.getWalletBalance();
+      }
+      if ((v === null || v === undefined || v === '') && window.__gwWalletBalance !== undefined && window.__gwWalletBalance !== null && window.__gwWalletBalance !== '') {
+        v = window.__gwWalletBalance;
+      }
+      if (v !== null && v !== undefined && String(v) !== '') setPoints(v);
+      else if (lastPoints === null) applyGwHideMask();
+    } catch (e) {}
+  }
+
+  function bindEye(){
+    var btn = document.getElementById('gwHideBalanceBtn');
+    if (!btn || btn.__gwBound) return;
+    btn.__gwBound = true;
+    btn.addEventListener('click', function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      if (isHidden()) localStorage.removeItem(HIDE_KEY);
+      else localStorage.setItem(HIDE_KEY, '1');
+      applyGwHideMask();
+    });
+  }
+
+  function init(){
+    bindEye();
+    applyGwHideMask();
+    pollBalance();
+    setInterval(pollBalance, 1500);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+
 <script>
 // ===== タブナビ（スワイプメニュー対応） =====
 function switchTab(name) {
