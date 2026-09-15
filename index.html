@@ -110,17 +110,27 @@ body{font-family:"DotGothic16",sans-serif;background:var(--bg);color:var(--text)
 .cal-section-tab{appearance:none;border:1px solid var(--border);background:var(--gray5);color:var(--text2);border-radius:999px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.04em;white-space:nowrap;flex-shrink:0;}
 .cal-section-tab.active{background:rgba(212,168,67,.18);border-color:rgba(212,168,67,.45);color:var(--gold);}
 .cal-section-tab:active{transform:scale(.97);}
-#calPanelForecast,#calPanelMtable{display:none;}
+#calPanelForecast,#calPanelMtable,#calPanelSales{display:none;}
 #calSectionRoot[data-tab="calendar"] #calPanelCalendar{display:block;}
 #calSectionRoot[data-tab="calendar"] #calPanelForecast,
-#calSectionRoot[data-tab="calendar"] #calPanelMtable{display:none !important;}
+#calSectionRoot[data-tab="calendar"] #calPanelMtable,
+#calSectionRoot[data-tab="calendar"] #calPanelSales{display:none !important;}
 #calSectionRoot[data-tab="forecast"] #calPanelForecast{display:block;}
 #calSectionRoot[data-tab="forecast"] #calPanelCalendar,
-#calSectionRoot[data-tab="forecast"] #calPanelMtable{display:none !important;}
+#calSectionRoot[data-tab="forecast"] #calPanelMtable,
+#calSectionRoot[data-tab="forecast"] #calPanelSales{display:none !important;}
 #calSectionRoot[data-tab="mtable"] #calPanelMtable{display:block;}
 #calSectionRoot[data-tab="mtable"] #calPanelCalendar,
-#calSectionRoot[data-tab="mtable"] #calPanelForecast{display:none !important;}
+#calSectionRoot[data-tab="mtable"] #calPanelForecast,
+#calSectionRoot[data-tab="mtable"] #calPanelSales{display:none !important;}
+#calSectionRoot[data-tab="sales"] #calPanelSales{display:block;}
+#calSectionRoot[data-tab="sales"] #calPanelCalendar,
+#calSectionRoot[data-tab="sales"] #calPanelForecast,
+#calSectionRoot[data-tab="sales"] #calPanelMtable{display:none !important;}
 #calPanelForecast .forecast-card{display:block !important;margin:10px;}
+.sales-panel-card{margin:10px;background:var(--navy2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.sales-stats{border-bottom:none !important;background:transparent !important;}
+#rankBanner{display:none !important;}
 
 /* ===== フッターボタン行 ===== */
 .footer-btns{display:flex;gap:6px;margin-top:10px;}
@@ -454,32 +464,6 @@ tr{cursor:pointer;}
     </div>
   </div>
 
-  <div class="stats-row">
-    <div class="ss"><div class="ss-label">売上合計</div><div class="ss-val green" id="totalPt">—</div></div>
-    <div class="ss"><div class="ss-label">月平均</div><div class="ss-val" id="avgPt">—</div></div>
-    <div class="ss"><div class="ss-label">最高月</div><div class="ss-val" id="maxMonth" style="font-size:11px">—</div></div>
-    <div class="ss"><div class="ss-label">期間</div><div class="ss-val" id="periodVal" style="font-size:11px">—</div></div>
-  </div>
-
-  <!-- 目標達成バー -->
-  <div class="goal-bar-wrap" id="goalBarWrap">
-    <div class="goal-bar-inner">
-      <span style="font-size:11px;color:var(--gold-d);font-weight:700;">目標</span>
-      <div class="goal-bar-bg"><div class="goal-bar-fill" id="goalBarFill" style="width:0%"></div></div>
-      <span class="goal-bar-text" id="goalBarText">0%</span>
-    </div>
-  </div>
-
-  <!-- 称号バナー -->
-  <div class="rank-banner" id="rankBanner" style="display:none;">
-    <span class="rank-emoji" id="rankEmoji">🦊</span>
-    <div style="flex:1;">
-      <div class="rank-text-title">今月の称号</div>
-      <div class="rank-text-name" id="rankName">—</div>
-      <div id="rankMsg" style="font-size:11px;color:rgba(255,255,255,.8);margin-top:3px;font-weight:500;"></div>
-    </div>
-  </div>
-
   <!-- フッターカード -->
   <div style="padding:8px 10px 0;">
     <input type="file" id="calFileInput" accept=".csv,text/csv,text/plain,application/csv,application/vnd.ms-excel" multiple style="display:none;" onchange="handleCalFileSelect(event)">
@@ -535,6 +519,7 @@ tr{cursor:pointer;}
     <button type="button" class="cal-section-tab active" role="tab" data-cal-tab="calendar" aria-selected="true">カレンダー</button>
     <button type="button" class="cal-section-tab" role="tab" data-cal-tab="forecast" aria-selected="false">月末予測</button>
     <button type="button" class="cal-section-tab" role="tab" data-cal-tab="mtable" aria-selected="false">月別集計</button>
+    <button type="button" class="cal-section-tab" role="tab" data-cal-tab="sales" aria-selected="false">売上合計</button>
   </div>
 
   <div id="calPanelCalendar">
@@ -584,6 +569,28 @@ tr{cursor:pointer;}
     </div>
   </div>
   </div><!-- /calPanelMtable -->
+
+  <div id="calPanelSales">
+    <div class="sales-panel-card">
+      <div class="stats-row sales-stats">
+        <div class="ss"><div class="ss-label">売上合計</div><div class="ss-val green" id="totalPt">—</div></div>
+        <div class="ss"><div class="ss-label">月平均</div><div class="ss-val" id="avgPt">—</div></div>
+        <div class="ss"><div class="ss-label">最高月</div><div class="ss-val" id="maxMonth" style="font-size:11px">—</div></div>
+        <div class="ss"><div class="ss-label">期間</div><div class="ss-val" id="periodVal" style="font-size:11px">—</div></div>
+      </div>
+      <div class="goal-bar-wrap" id="goalBarWrap" style="display:none;margin:10px 0 0;border:none;">
+        <div class="goal-bar-inner">
+          <span style="font-size:11px;color:var(--gold-d);font-weight:700;">目標</span>
+          <div class="goal-bar-bg"><div class="goal-bar-fill" id="goalBarFill" style="width:0%"></div></div>
+          <span class="goal-bar-text" id="goalBarText">0%</span>
+        </div>
+      </div>
+      <!-- keep ids for legacy JS; never show 称号 -->
+      <div id="rankBanner" style="display:none !important;" aria-hidden="true">
+        <span id="rankEmoji"></span><div id="rankName"></div><div id="rankMsg"></div>
+      </div>
+    </div>
+  </div><!-- /calPanelSales -->
   </div><!-- /calSectionRoot -->
 
   <!-- 参照ファイルパネル -->
@@ -1496,7 +1503,7 @@ function saveThreshold(){
 
 function updateGoalBar(){
   const mk=allMonths[currentMonthIdx];
-  if(!mk){document.getElementById('goalBarWrap').style.display='none';document.getElementById('rankBanner').style.display='none';return;}
+  if(!mk){var _gw=document.getElementById('goalBarWrap');if(_gw)_gw.style.display='none';var _rb=document.getElementById('rankBanner');if(_rb)_rb.style.display='none';return;}
   const total=monthMap[mk]?monthMap[mk].total:0;
   const goal=parseInt(localStorage.getItem('goal_'+mk)||'0');
   const wrap=document.getElementById('goalBarWrap');
@@ -1506,14 +1513,8 @@ function updateGoalBar(){
     document.getElementById('goalBarText').textContent=pct+'%　¥'+fmt(total)+'/¥'+fmt(goal);
     wrap.style.display='';
   } else {wrap.style.display='none';}
-  const rk=getRank(total);
   const banner=document.getElementById('rankBanner');
-  banner.style.setProperty('--rank-bg', rk.bg);
-  banner.style.setProperty('--rank-shadow', rk.shadow);
-  document.getElementById('rankEmoji').textContent=rk.emoji;
-  document.getElementById('rankName').textContent=rk.name;
-  document.getElementById('rankMsg').textContent=getRankMsg(rk);
-  banner.style.display='';
+  if(banner){ banner.style.display='none'; }
 }
 function saveGoal(){
   const mk=allMonths[currentMonthIdx];
@@ -2103,7 +2104,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 // ===== カレンダー / 月末予測 / 月別集計 タブ =====
 (function(){
   var KEY = 'gw_cal_tab';
-  var VALID = {calendar:1, forecast:1, mtable:1};
+  var VALID = {calendar:1, forecast:1, mtable:1, sales:1};
   function apply(tab){
     if(!VALID[tab]) tab = 'calendar';
     var root = document.getElementById('calSectionRoot');
@@ -2123,8 +2124,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(!root || root.__gwCalTabBound) return;
     root.__gwCalTabBound = true;
     try{ localStorage.removeItem('gw_cal_collapsed'); }catch(e){}
-    var saved = localStorage.getItem(KEY) || 'calendar';
-    apply(saved);
+    // Always open on カレンダー so the full month is visible first
+    apply('calendar');
     root.addEventListener('click', function(ev){
       var btn = ev.target && ev.target.closest ? ev.target.closest('.cal-section-tab') : null;
       if(!btn || !root.contains(btn)) return;
