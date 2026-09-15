@@ -386,10 +386,21 @@ tr{cursor:pointer;}
 </div></div>
 <script>
 (function(){
+  var sp=document.getElementById('splash');
+  var skip=false;
+  try{
+    var q=new URLSearchParams(location.search);
+    if(q.get('nosplash')==='1') skip=true;
+    if(localStorage.getItem('gw_skip_splash')==='1') skip=true;
+  }catch(e){}
+  if(skip){
+    if(sp){sp.style.display='none';sp.classList.add('hide');}
+    return;
+  }
+  try{localStorage.setItem('gw_skip_splash','1');}catch(e){}
   var cv=document.getElementById('splashCanvas');
   var ctx=cv.getContext('2d');
   var ce=document.getElementById('splashCenter');
-  var sp=document.getElementById('splash');
   cv.width=window.innerWidth;cv.height=window.innerHeight;
   var cx=cv.width/2,cy=cv.height/2;
   var pts=[],cols=['#c9933a','#dba84e','#f0cc80','#a87428','#e8b860','#f5e0a0'];
@@ -720,6 +731,11 @@ tr{cursor:pointer;}
         <a href="./cushin-setup.html" class="ext-link-card">
           <div class="ext-link-icon" style="background:#ede9fe;">🛠️</div>
           <div class="ext-link-body"><div class="ext-link-title">自動タップ設定</div><div class="ext-link-sub">新しいセッションを自動で押す準備</div></div>
+          <div class="ext-link-arrow">›</div>
+        </a>
+        <a href="./error-userids.html" class="ext-link-card">
+          <div class="ext-link-icon" style="background:#fee2e2;">⚠️</div>
+          <div class="ext-link-body"><div class="ext-link-title">エラーUSERID一覧</div><div class="ext-link-sub">引き出し失敗したTikTok/Cushinユーザー</div></div>
           <div class="ext-link-arrow">›</div>
         </a>
         <a href="paypay://home" onclick="handlePayPayJump(event)" class="ext-link-card">
@@ -2317,6 +2333,9 @@ function aiQuickSend(text){
       </button>
       <a href="https://cushintools.net/dashboard/quick-withdraw#auto-new-session" target="_blank" rel="noopener" onclick="closeWalletModal()" style="display:flex;flex-direction:column;align-items:center;gap:5px;background:var(--gray5);border:1.5px solid var(--border);border-radius:14px;padding:12px 4px 10px;cursor:pointer;text-decoration:none;">
         <span style="font-size:28px;">⚡</span><span style="font-size:10px;font-weight:700;color:var(--text3);">クイック引出</span>
+      </a>
+      <a href="./error-userids.html" onclick="closeWalletModal()" style="display:flex;flex-direction:column;align-items:center;gap:5px;background:var(--gray5);border:1.5px solid var(--border);border-radius:14px;padding:12px 4px 10px;cursor:pointer;text-decoration:none;">
+        <span style="font-size:28px;">⚠️</span><span style="font-size:10px;font-weight:700;color:var(--text3);">エラーUSERID</span>
       </a>
     </div>
   </div>

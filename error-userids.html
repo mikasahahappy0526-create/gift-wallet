@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>エラーUSERID一覧 — ギフトウォレット</title>
+<style>
+  :root { --bg:#080810; --card:#12121e; --border:#252535; --gold:#d4a843; --text:#e8e8f0; --muted:#9090a8; --danger:#ef4444; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;padding:20px 16px 64px;max-width:520px;margin:0 auto}
+  h1{font-size:1.2rem;margin:0 0 6px;color:var(--gold)}
+  .sub{color:var(--muted);font-size:.9rem;margin:0 0 18px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin:0 0 10px}
+  .uid{font-weight:800;font-size:1rem;word-break:break-all}
+  .err{color:var(--danger);font-size:.85rem;margin-top:4px}
+  .at{color:var(--muted);font-size:.75rem;margin-top:6px}
+  .empty,.web-msg{color:var(--muted);padding:18px;text-align:center;background:var(--card);border:1px dashed var(--border);border-radius:14px}
+  .actions{display:flex;gap:10px;margin:16px 0 8px;flex-wrap:wrap}
+  button,.btn{appearance:none;border:none;border-radius:12px;padding:12px 16px;font-weight:800;font-size:.9rem;cursor:pointer;text-decoration:none;display:inline-block;text-align:center}
+  .btn-gold{background:var(--gold);color:#111}
+  .btn-outline{background:transparent;border:1px solid var(--gold);color:var(--gold)}
+  .btn-danger{background:#3a1515;border:1px solid var(--danger);color:#fecaca}
+  .count{font-size:.8rem;color:var(--muted);margin-bottom:10px}
+</style>
+</head>
+<body>
+  <h1>⚠️ エラーUSERID一覧</h1>
+  <p class="sub">Cushin の引き出し・QRセッションで失敗したユーザー名を記録します。</p>
+
+  <div class="actions">
+    <a class="btn btn-outline" href="./index.html">← ギフトウォレット</a>
+    <button type="button" class="btn btn-danger" id="clearBtn" style="display:none;">一覧をクリア</button>
+  </div>
+
+  <div id="count" class="count"></div>
+  <div id="list"></div>
+  <div id="webMsg" class="web-msg" style="display:none;">
+    この一覧は Android アプリ（ギフトウォレット）内で Cushin の引き出しが失敗したときに自動で記録されます。<br><br>
+    ブラウザ単体ではデータは表示されません。アプリからこのページを開いてください。
+  </div>
+
+<script>
+(function(){
+  var listEl = document.getElementById('list');
+  var countEl = document.getElementById('count');
+  var clearBtn = document.getElementById('clearBtn');
+  var webMsg = document.getElementById('webMsg');
+
+  function esc(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function render(arr){
+    listEl.innerHTML = '';
+    if (!arr || !arr.length) {
+      listEl.innerHTML = '<div class="empty">まだ失敗USERIDはありません</div>';
+      countEl.textContent = '0 件';
+      return;
+    }
+    countEl.textContent = arr.length + ' 件';
+    // newest first if possible
+    var items = arr.slice().sort(function(a,b){
+      return String(b.at||'').localeCompare(String(a.at||''));
+    });
+    for (var i = 0; i < items.length; i++) {
+      var it = items[i] || {};
+      var div = document.createElement('div');
+      div.className = 'card';
+      div.innerHTML =
+        '<div class="uid">' + esc(it.userId || '(不明)') + '</div>' +
+        '<div class="err">' + esc(it.error || 'failed') + '</div>' +
+        '<div class="at">' + esc(it.at || '') + '</div>';
+      listEl.appendChild(div);
+    }
+  }
+
+  function loadFromBridge(){
+    try {
+      if (!window.GiftWallet || typeof window.GiftWallet.getErrorUserIdsJson !== 'function') {
+        webMsg.style.display = 'block';
+        clearBtn.style.display = 'none';
+        return;
+      }
+      clearBtn.style.display = 'inline-block';
+      var raw = window.GiftWallet.getErrorUserIdsJson();
+      var arr = [];
+      try { arr = JSON.parse(raw || '[]'); } catch (e) { arr = []; }
+      if (!Array.isArray(arr)) arr = [];
+      render(arr);
+    } catch (e) {
+      webMsg.style.display = 'block';
+      webMsg.textContent = '一覧の読み込みに失敗しました。';
+    }
+  }
+
+  clearBtn.addEventListener('click', function(){
+    try {
+      if (!window.GiftWallet || typeof window.GiftWallet.clearErrorUserIds !== 'function') return;
+      if (!confirm('エラーUSERID一覧をすべて削除しますか？')) return;
+      window.GiftWallet.clearErrorUserIds();
+      render([]);
+    } catch (e) {}
+  });
+
+  loadFromBridge();
+})();
+</script>
+</body>
+</html>

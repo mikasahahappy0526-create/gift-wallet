@@ -1,9 +1,11 @@
 package net.giftwallet.app
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.webkit.CookieManager
+import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
@@ -11,17 +13,25 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import org.json.JSONArray
+import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
+    private lateinit var prefs: android.content.SharedPreferences
+    private var markedSplashDone = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         webView = findViewById(R.id.webView)
         setupWebView()
-        webView.loadUrl(HOME_URL)
+
+        val splashDone = prefs.getBoolean(KEY_SPLASH_DONE, false)
+        val startUrl = if (splashDone) HOME_URL_NOSPLASH else HOME_URL
+        webView.loadUrl(startUrl)
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -53,6 +63,8 @@ class MainActivity : AppCompatActivity() {
             userAgentString = userAgentString.replace("; wv", "")
         }
 
+        webView.addJavascriptInterface(GiftWalletBridge(), "GiftWallet")
+
         webView.webChromeClient = WebChromeClient()
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(
@@ -74,22 +86,256 @@ class MainActivity : AppCompatActivity() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 maybeInjectHelpers(view, url)
+                maybeMarkSplashDone(url)
             }
         }
+    }
+
+    private fun maybeMarkSplashDone(url: String?) {
+        if (markedSplashDone || url.isNullOrBlank()) return
+        if (!url.contains("gift-wallet.pages.dev")) return
+        if (!prefs.getBoolean(KEY_SPLASH_DONE, false)) {
+            prefs.edit().putBoolean(KEY_SPLASH_DONE, true).apply()
+        }
+        markedSplashDone = true
     }
 
     private fun maybeInjectHelpers(view: WebView?, url: String?) {
         if (view == null || url.isNullOrBlank()) return
         if (!url.contains("cushintools.net")) return
-        if (!url.contains("/dashboard/quick-withdraw") && !url.contains("auto-new-session")) return
-        view.evaluateJavascript(HELPER_JS, null)
+        val isQuick =
+            url.contains("/dashboard/quick-withdraw") || url.contains("auto-new-session")
+        val js = if (isQuick) HELPER_JS_FULL else HELPER_JS_BASE
+        view.evaluateJavascript(js, null)
+    }
+
+    inner class GiftWalletBridge {
+        @JavascriptInterface
+        fun saveErrorUserId(userId: String, error: String, at: String) {
+            try {
+                val id = userId.trim()
+                if (id.isEmpty()) return
+                val arr = loadErrorArray()
+                var found = -1
+                for (i in 0 until arr.length()) {
+                    val o = arr.optJSONObject(i) ?: continue
+                    if (o.optString("userId") == id) {
+                        found = i
+                        break
+                    }
+                }
+                val obj = JSONObject()
+                obj.put("userId", id)
+                obj.put("error", error)
+                obj.put("at", if (at.isBlank()) {
+                    java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.US).apply {
+                        timeZone = java.util.TimeZone.getTimeZone("UTC")
+                    }.format(java.util.Date())
+                } else at)
+                if (found >= 0) {
+                    arr.put(found, obj)
+                } else {
+                    arr.put(obj)
+                }
+                prefs.edit().putString(KEY_ERROR_USERIDS, arr.toString()).apply()
+            } catch (_: Exception) {
+            }
+        }
+
+        @JavascriptInterface
+        fun getErrorUserIdsJson(): String {
+            return try {
+                prefs.getString(KEY_ERROR_USERIDS, "[]") ?: "[]"
+            } catch (_: Exception) {
+                "[]"
+            }
+        }
+
+        @JavascriptInterface
+        fun clearErrorUserIds() {
+            try {
+                prefs.edit().putString(KEY_ERROR_USERIDS, "[]").apply()
+            } catch (_: Exception) {
+            }
+        }
+    }
+
+    private fun loadErrorArray(): JSONArray {
+        return try {
+            JSONArray(prefs.getString(KEY_ERROR_USERIDS, "[]") ?: "[]")
+        } catch (_: Exception) {
+            JSONArray()
+        }
     }
 
     companion object {
+        private const val PREFS_NAME = "gift_wallet"
+        private const val KEY_SPLASH_DONE = "splash_done"
+        private const val KEY_ERROR_USERIDS = "error_userids"
         private const val HOME_URL = "https://gift-wallet.pages.dev/"
+        private const val HOME_URL_NOSPLASH = "https://gift-wallet.pages.dev/?nosplash=1"
 
-        private val HELPER_JS = """
+        private val HELPER_JS_BASE = """
             (function(){
+              if (window.__gwHelpersBase) return;
+              window.__gwHelpersBase = true;
+
+              function injectBackBtn(){
+                try {
+                  if (document.getElementById('gw-back-btn')) return;
+                  var btn = document.createElement('a');
+                  btn.id = 'gw-back-btn';
+                  btn.href = 'https://gift-wallet.pages.dev/';
+                  btn.textContent = '← ギフトウォレット';
+                  btn.setAttribute('style', [
+                    'position:fixed','left:12px','bottom:18px','z-index:2147483647',
+                    'background:#d4a843','color:#111','font-weight:800','font-size:13px',
+                    'text-decoration:none','padding:10px 14px','border-radius:999px',
+                    'box-shadow:0 4px 16px rgba(0,0,0,.35)','font-family:system-ui,sans-serif',
+                    'letter-spacing:.02em','-webkit-tap-highlight-color:transparent'
+                  ].join(';'));
+                  (document.body || document.documentElement).appendChild(btn);
+                } catch (e) {}
+              }
+
+              function saveErr(userId, error, at){
+                try {
+                  if (!userId || !window.GiftWallet || !window.GiftWallet.saveErrorUserId) return;
+                  window.GiftWallet.saveErrorUserId(
+                    String(userId),
+                    String(error || 'failed'),
+                    String(at || new Date().toISOString())
+                  );
+                } catch (e) {}
+              }
+
+              function lookFailedItem(item){
+                try {
+                  if (!item || typeof item !== 'object') return;
+                  var status = String(item.status || item.state || item.result || '').toLowerCase();
+                  var failed = status.indexOf('fail') >= 0 || status.indexOf('error') >= 0 ||
+                    status === 'ng' || item.failed === true || item.success === false;
+                  if (!failed) return;
+                  var userId = item.username || item.userName || item.user_id || item.userId ||
+                    item.tiktok_username || item.tiktokUsername || item.account || item.name || '';
+                  if (!userId) return;
+                  var err = item.error || item.message || item.reason || item.status || 'failed';
+                  var at = item.updated_at || item.updatedAt || item.created_at || item.at || new Date().toISOString();
+                  saveErr(userId, err, at);
+                } catch (e) {}
+              }
+
+              function scanPayload(data){
+                try {
+                  if (!data) return;
+                  if (Array.isArray(data)) {
+                    for (var i = 0; i < data.length; i++) lookFailedItem(data[i]);
+                    return;
+                  }
+                  if (typeof data !== 'object') return;
+                  lookFailedItem(data);
+                  var keys = ['tasks','items','sessions','data','results','list'];
+                  for (var k = 0; k < keys.length; k++) {
+                    if (Array.isArray(data[keys[k]])) scanPayload(data[keys[k]]);
+                  }
+                } catch (e) {}
+              }
+
+              function wrapFetch(){
+                try {
+                  if (window.__gwFetchWrapped || typeof window.fetch !== 'function') return;
+                  window.__gwFetchWrapped = true;
+                  var orig = window.fetch.bind(window);
+                  window.fetch = function(){
+                    var args = arguments;
+                    var url = '';
+                    try {
+                      if (typeof args[0] === 'string') url = args[0];
+                      else if (args[0] && args[0].url) url = args[0].url;
+                    } catch (e) {}
+                    return orig.apply(null, args).then(function(res){
+                      try {
+                        var u = String(url || (res && res.url) || '');
+                        if (u.indexOf('/api/tasks') >= 0 || u.indexOf('/api/') >= 0) {
+                          res.clone().json().then(function(data){ scanPayload(data); }).catch(function(){});
+                        }
+                      } catch (e) {}
+                      return res;
+                    });
+                  };
+                } catch (e) {}
+              }
+
+              function scanDomFailed(){
+                try {
+                  var cards = document.querySelectorAll(
+                    '.qr-session-card, .session-card, [class*="session"], [class*="task"], [class*="failed"], [class*="error"]'
+                  );
+                  for (var i = 0; i < cards.length; i++) {
+                    var el = cards[i];
+                    var text = (el.innerText || el.textContent || '');
+                    var low = text.toLowerCase();
+                    if (low.indexOf('fail') < 0 && low.indexOf('error') < 0 &&
+                        text.indexOf('失敗') < 0 && text.indexOf('エラー') < 0) continue;
+                    var userId = '';
+                    var userEl = el.querySelector('[class*="user"], [class*="name"], .username, .tiktok-username');
+                    if (userEl) userId = (userEl.innerText || userEl.textContent || '').trim();
+                    if (!userId) {
+                      var m = text.match(/@([A-Za-z0-9._]{2,64})/);
+                      if (m) userId = m[1];
+                    }
+                    if (!userId) {
+                      var lines = text.split(/\n+/).map(function(s){ return s.trim(); }).filter(Boolean);
+                      for (var j = 0; j < lines.length; j++) {
+                        if (/^[A-Za-z0-9._]{3,64}$/.test(lines[j]) && lines[j].indexOf('http') < 0) {
+                          userId = lines[j];
+                          break;
+                        }
+                      }
+                    }
+                    if (!userId) continue;
+                    var err = 'failed';
+                    if (text.indexOf('失敗') >= 0) err = '失敗';
+                    else if (text.indexOf('エラー') >= 0) err = 'エラー';
+                    else if (low.indexOf('error') >= 0) err = 'error';
+                    saveErr(userId, err, new Date().toISOString());
+                  }
+                } catch (e) {}
+              }
+
+              function startErrorWatcher(){
+                if (window.__gwErrorWatchStarted) return;
+                window.__gwErrorWatchStarted = true;
+                wrapFetch();
+                function tick(){
+                  scanDomFailed();
+                  setTimeout(tick, 2500);
+                }
+                try {
+                  var mo = new MutationObserver(function(){ scanDomFailed(); });
+                  mo.observe(document.documentElement, { childList:true, subtree:true });
+                } catch (e) {}
+                tick();
+              }
+
+              function ensure(){
+                injectBackBtn();
+                startErrorWatcher();
+              }
+              ensure();
+              if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', ensure);
+              }
+              setTimeout(ensure, 800);
+              setTimeout(ensure, 2000);
+            })();
+        """.trimIndent()
+
+        private val HELPER_JS_QUICK = """
+            (function(){
+              if (window.__gwHelpersQuick) return;
+              window.__gwHelpersQuick = true;
+
               function clearHash(){
                 try {
                   if (location.hash && location.hash.indexOf('auto-new-session') >= 0) {
@@ -206,5 +452,7 @@ class MainActivity : AppCompatActivity() {
               autoTap();
             })();
         """.trimIndent()
+
+        private val HELPER_JS_FULL = HELPER_JS_BASE + "\n" + HELPER_JS_QUICK
     }
 }
