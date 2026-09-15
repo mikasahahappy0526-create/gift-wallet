@@ -115,25 +115,18 @@ body{font-family:"DotGothic16",sans-serif;background:var(--bg);color:var(--text)
 .cal-section-tab{appearance:none;border:1px solid var(--border);background:var(--gray5);color:var(--text2);border-radius:999px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.04em;white-space:nowrap;flex-shrink:0;}
 .cal-section-tab.active{background:rgba(212,168,67,.18);border-color:rgba(212,168,67,.45);color:var(--gold);}
 .cal-section-tab:active{transform:scale(.97);}
-#calPanelForecast,#calPanelMtable,#calPanelSales{display:none;}
+#calPanelForecast,#calPanelMtable{display:none;}
 #calSectionRoot[data-tab="calendar"] #calPanelCalendar{display:flex;flex-direction:column;flex:1;min-height:0;}
 #calSectionRoot[data-tab="calendar"] #calPanelForecast,
-#calSectionRoot[data-tab="calendar"] #calPanelMtable,
-#calSectionRoot[data-tab="calendar"] #calPanelSales{display:none !important;}
+#calSectionRoot[data-tab="calendar"] #calPanelMtable{display:none !important;}
 #calSectionRoot[data-tab="forecast"] #calPanelForecast{display:block;}
 #calSectionRoot[data-tab="forecast"] #calPanelCalendar,
-#calSectionRoot[data-tab="forecast"] #calPanelMtable,
-#calSectionRoot[data-tab="forecast"] #calPanelSales{display:none !important;}
+#calSectionRoot[data-tab="forecast"] #calPanelMtable{display:none !important;}
 #calSectionRoot[data-tab="mtable"] #calPanelMtable{display:block;}
 #calSectionRoot[data-tab="mtable"] #calPanelCalendar,
-#calSectionRoot[data-tab="mtable"] #calPanelForecast,
-#calSectionRoot[data-tab="mtable"] #calPanelSales{display:none !important;}
-#calSectionRoot[data-tab="sales"] #calPanelSales{display:block;}
-#calSectionRoot[data-tab="sales"] #calPanelCalendar,
-#calSectionRoot[data-tab="sales"] #calPanelForecast,
-#calSectionRoot[data-tab="sales"] #calPanelMtable{display:none !important;}
+#calSectionRoot[data-tab="mtable"] #calPanelForecast{display:none !important;}
 #calPanelForecast .forecast-card{display:block !important;margin:10px;}
-.sales-panel-card{margin:10px;background:var(--navy2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.sales-panel-card{margin:0 0 10px;background:var(--navy2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
 .sales-stats{border-bottom:none !important;background:transparent !important;}
 #rankBanner{display:none !important;}
 
@@ -527,15 +520,6 @@ tr{cursor:pointer;}
 
   <div id="calPanelMtable">
   <div class="mtable-wrap">
-    <div class="mtable-card">
-      <div class="mtable-head">月別集計</div>
-      <table><thead><tr><th>月</th><th>回数 / 割合</th><th>合計</th></tr></thead>
-      <tbody id="monthTableBody"></tbody></table>
-    </div>
-  </div>
-  </div><!-- /calPanelMtable -->
-
-  <div id="calPanelSales">
     <div class="sales-panel-card">
       <div class="stats-row sales-stats">
         <div class="ss"><div class="ss-label">売上合計</div><div class="ss-val green" id="totalPt">—</div></div>
@@ -550,12 +534,17 @@ tr{cursor:pointer;}
           <span class="goal-bar-text" id="goalBarText">0%</span>
         </div>
       </div>
-      <!-- keep ids for legacy JS; never show 称号 -->
       <div id="rankBanner" style="display:none !important;" aria-hidden="true">
         <span id="rankEmoji"></span><div id="rankName"></div><div id="rankMsg"></div>
       </div>
     </div>
-  </div><!-- /calPanelSales -->
+    <div class="mtable-card">
+      <div class="mtable-head">月別集計</div>
+      <table><thead><tr><th>月</th><th>回数 / 割合</th><th>合計</th></tr></thead>
+      <tbody id="monthTableBody"></tbody></table>
+    </div>
+  </div>
+  </div><!-- /calPanelMtable -->
   <div id="calBottomBar">
   <div class="month-nav" id="monthNav">
     <button class="mnav-btn" id="prevBtn" onclick="changeMonth(-1)">‹</button>
@@ -566,7 +555,6 @@ tr{cursor:pointer;}
     <button type="button" class="cal-section-tab active" role="tab" data-cal-tab="calendar" aria-selected="true">カレンダー</button>
     <button type="button" class="cal-section-tab" role="tab" data-cal-tab="forecast" aria-selected="false">月末予測</button>
     <button type="button" class="cal-section-tab" role="tab" data-cal-tab="mtable" aria-selected="false">月別集計</button>
-    <button type="button" class="cal-section-tab" role="tab" data-cal-tab="sales" aria-selected="false">売上合計</button>
   </div>
   </div>
   </div><!-- /calSectionRoot -->
@@ -2128,8 +2116,9 @@ document.addEventListener('DOMContentLoaded',()=>{
 // ===== カレンダー / 月末予測 / 月別集計 タブ =====
 (function(){
   var KEY = 'gw_cal_tab';
-  var VALID = {calendar:1, forecast:1, mtable:1, sales:1};
+  var VALID = {calendar:1, forecast:1, mtable:1};
   function apply(tab){
+    if(tab === 'sales') tab = 'mtable';
     if(!VALID[tab]) tab = 'calendar';
     var root = document.getElementById('calSectionRoot');
     if(!root) return;
