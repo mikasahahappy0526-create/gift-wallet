@@ -739,6 +739,24 @@ class MainActivity : AppCompatActivity() {
               if (window.__gwVatonCsv) return;
               window.__gwVatonCsv = true;
 
+              function injectBackBtn(){
+                try {
+                  if (document.getElementById('gw-back-btn')) return;
+                  var btn = document.createElement('a');
+                  btn.id = 'gw-back-btn';
+                  btn.href = 'https://gift-wallet.pages.dev/?nosplash=1';
+                  btn.textContent = '← ギフトウォレット';
+                  btn.setAttribute('style', [
+                    'position:fixed','left:12px','bottom:18px','z-index:2147483647',
+                    'background:#d4a843','color:#111','font-weight:800','font-size:13px',
+                    'text-decoration:none','padding:10px 14px','border-radius:999px',
+                    'box-shadow:0 4px 16px rgba(0,0,0,.35)','font-family:system-ui,sans-serif',
+                    'letter-spacing:.02em','-webkit-tap-highlight-color:transparent'
+                  ].join(';'));
+                  (document.body || document.documentElement).appendChild(btn);
+                } catch (e) {}
+              }
+
               function toast(msg){
                 try {
                   if (window.GiftWallet && window.GiftWallet.showToast) window.GiftWallet.showToast(String(msg));
@@ -799,6 +817,21 @@ class MainActivity : AppCompatActivity() {
                 return null;
               }
 
+              function clickHistoryTab(){
+                try {
+                  var nodes = document.querySelectorAll('button, a, [role="tab"], [role="button"], div, span, li');
+                  for (var i = 0; i < nodes.length; i++) {
+                    var el = nodes[i];
+                    var s = (el.innerText || el.textContent || '').replace(/\s+/g,' ').trim();
+                    if (s === 'ポイント履歴' || (s.indexOf('ポイント履歴') >= 0 && s.indexOf('有効期限') < 0 && s.length < 20)) {
+                      el.click();
+                      return true;
+                    }
+                  }
+                } catch (e) {}
+                return false;
+              }
+
               function looksLoggedOut(){
                 try {
                   if (findBtn('利用実績CSVダウンロード')) return false;
@@ -837,11 +870,16 @@ class MainActivity : AppCompatActivity() {
                       setTimeout(tick, 700);
                       return;
                     }
+                    // Select 「ポイント履歴」 before CSV download UI (default is often 「ポイント有効期限」)
                     var openBtn = findBtn('利用実績CSVダウンロード');
                     if (!openBtn) {
                       if (tries >= 30) {
                         notifyLogin();
                         clearAutoHash();
+                        return;
+                      }
+                      if (clickHistoryTab()) {
+                        setTimeout(tick, 450);
                         return;
                       }
                       setTimeout(tick, 500);
@@ -864,6 +902,14 @@ class MainActivity : AppCompatActivity() {
                 }
                 setTimeout(tick, 400);
               }
+
+              injectBackBtn();
+              setTimeout(injectBackBtn, 800);
+              setTimeout(injectBackBtn, 2000);
+              try {
+                var mo = new MutationObserver(function(){ injectBackBtn(); });
+                mo.observe(document.documentElement, { childList:true, subtree:true });
+              } catch (e) {}
 
               autoCsv();
               setTimeout(autoCsv, 1200);
