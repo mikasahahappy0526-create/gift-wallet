@@ -20,16 +20,36 @@
   .btn-gold{background:var(--gold);color:#111}
   .btn-outline{background:transparent;border:1px solid var(--gold);color:var(--gold)}
   .btn-danger{background:#3a1515;border:1px solid var(--danger);color:#fecaca}
+  .btn-sm{padding:6px 10px;font-size:.75rem;border-radius:8px}
   .count{font-size:.8rem;color:var(--muted);margin-bottom:10px}
+  .common{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin:0 0 14px}
+  .common label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:6px;font-weight:700}
+  .row-pw{display:flex;gap:8px;align-items:center;margin-top:10px}
+  .pw-wrap{flex:1;display:flex;gap:6px;align-items:center}
+  input[type=password],input[type=text]{width:100%;background:#0a0a14;border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-size:.95rem}
+  .toggle{background:#1a1a2e;border:1px solid var(--border);color:var(--muted);padding:8px 10px;border-radius:8px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap}
+  .common-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 </style>
 </head>
 <body>
   <h1>⚠️ エラーUSERID一覧</h1>
-  <p class="sub">Cushin の引き出し・QRセッションで失敗したユーザー名を記録します。</p>
+  <p class="sub">Cushin の引き出し・QRセッションで失敗したユーザー名を記録します。パスワードを付けて一発コピペできます。</p>
 
   <div class="actions">
     <a class="btn btn-outline" href="./index.html">← ギフトウォレット</a>
     <button type="button" class="btn btn-danger" id="clearBtn" style="display:none;">一覧をクリア</button>
+  </div>
+
+  <div class="common" id="commonBox" style="display:none;">
+    <label for="commonPw">共通パスワード</label>
+    <div class="pw-wrap">
+      <input type="password" id="commonPw" placeholder="全件に入れるパスワード" autocomplete="off">
+      <button type="button" class="toggle" id="commonToggle" aria-label="表示切替">表示</button>
+    </div>
+    <div class="common-actions">
+      <button type="button" class="btn btn-gold btn-sm" id="applyAllBtn">全件に同じパスワードを入れる</button>
+      <button type="button" class="btn btn-outline btn-sm" id="copyAllBtn">一発コピペ</button>
+    </div>
   </div>
 
   <div id="count" class="count"></div>
@@ -45,44 +65,130 @@
   var countEl = document.getElementById('count');
   var clearBtn = document.getElementById('clearBtn');
   var webMsg = document.getElementById('webMsg');
+  var commonBox = document.getElementById('commonBox');
+  var commonPw = document.getElementById('commonPw');
+  var commonToggle = document.getElementById('commonToggle');
+  var applyAllBtn = document.getElementById('applyAllBtn');
+  var copyAllBtn = document.getElementById('copyAllBtn');
+  var cached = [];
 
   function esc(s){
     return String(s == null ? '' : s)
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
+  function hasBridge(){
+    return !!(window.GiftWallet && typeof window.GiftWallet.getErrorUserIdsJson === 'function');
+  }
+
+  function copyText(text){
+    text = String(text || '');
+    if (!text) return Promise.reject(new Error('empty'));
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).catch(function(){
+        return fallbackCopy(text);
+      });
+    }
+    return fallbackCopy(text);
+  }
+
+  function fallbackCopy(text){
+    return new Promise(function(resolve, reject){
+      try {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly','');
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        ta.setSelectionRange(0, ta.value.length);
+        var ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        if (ok) resolve();
+        else {
+          window.prompt('コピーして使ってください', text);
+          resolve();
+        }
+      } catch (e) {
+        try { window.prompt('コピーして使ってください', text); resolve(); }
+        catch (e2) { reject(e2); }
+      }
+    });
+  }
+
+  function savePassword(userId, password){
+    try {
+      if (!window.GiftWallet || typeof window.GiftWallet.setErrorUserPassword !== 'function') return;
+      window.GiftWallet.setErrorUserPassword(String(userId), String(password || ''));
+    } catch (e) {}
+  }
+
   function render(arr){
+    cached = Array.isArray(arr) ? arr.slice() : [];
     listEl.innerHTML = '';
-    if (!arr || !arr.length) {
+    if (!cached.length) {
       listEl.innerHTML = '<div class="empty">まだ失敗USERIDはありません</div>';
       countEl.textContent = '0 件';
       return;
     }
-    countEl.textContent = arr.length + ' 件';
-    // newest first if possible
-    var items = arr.slice().sort(function(a,b){
+    countEl.textContent = cached.length + ' 件';
+    var items = cached.slice().sort(function(a,b){
       return String(b.at||'').localeCompare(String(a.at||''));
     });
     for (var i = 0; i < items.length; i++) {
-      var it = items[i] || {};
-      var div = document.createElement('div');
-      div.className = 'card';
-      div.innerHTML =
-        '<div class="uid">' + esc(it.userId || '(不明)') + '</div>' +
-        '<div class="err">' + esc(it.error || 'failed') + '</div>' +
-        '<div class="at">' + esc(it.at || '') + '</div>';
-      listEl.appendChild(div);
+      (function(it){
+        var uid = it.userId || '(不明)';
+        var div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML =
+          '<div class="uid">' + esc(uid) + '</div>' +
+          '<div class="err">' + esc(it.error || 'failed') + '</div>' +
+          '<div class="at">' + esc(it.at || '') + '</div>' +
+          '<div class="row-pw">' +
+            '<div class="pw-wrap">' +
+              '<input type="password" class="pw-input" placeholder="パスワード" autocomplete="off">' +
+              '<button type="button" class="toggle pw-toggle">表示</button>' +
+            '</div>' +
+            '<button type="button" class="btn btn-outline btn-sm copy-one">コピー</button>' +
+          '</div>';
+        var input = div.querySelector('.pw-input');
+        input.value = it.password || '';
+        var toggle = div.querySelector('.pw-toggle');
+        toggle.addEventListener('click', function(){
+          if (input.type === 'password') { input.type = 'text'; toggle.textContent = '隠す'; }
+          else { input.type = 'password'; toggle.textContent = '表示'; }
+        });
+        function persist(){
+          var pw = input.value || '';
+          it.password = pw;
+          if (uid && uid !== '(不明)') savePassword(uid, pw);
+        }
+        input.addEventListener('change', persist);
+        input.addEventListener('blur', persist);
+        div.querySelector('.copy-one').addEventListener('click', function(){
+          var common = (commonPw.value || '').trim();
+          var pw = (input.value || '').trim() || common;
+          var block = uid + '\n' + pw;
+          copyText(block).then(function(){
+            alert('コピーしました');
+          }).catch(function(){});
+        });
+        listEl.appendChild(div);
+      })(items[i] || {});
     }
   }
 
   function loadFromBridge(){
     try {
-      if (!window.GiftWallet || typeof window.GiftWallet.getErrorUserIdsJson !== 'function') {
+      if (!hasBridge()) {
         webMsg.style.display = 'block';
         clearBtn.style.display = 'none';
+        commonBox.style.display = 'none';
         return;
       }
       clearBtn.style.display = 'inline-block';
+      commonBox.style.display = 'block';
       var raw = window.GiftWallet.getErrorUserIdsJson();
       var arr = [];
       try { arr = JSON.parse(raw || '[]'); } catch (e) { arr = []; }
@@ -101,6 +207,52 @@
       window.GiftWallet.clearErrorUserIds();
       render([]);
     } catch (e) {}
+  });
+
+  commonToggle.addEventListener('click', function(){
+    if (commonPw.type === 'password') { commonPw.type = 'text'; commonToggle.textContent = '隠す'; }
+    else { commonPw.type = 'password'; commonToggle.textContent = '表示'; }
+  });
+
+  applyAllBtn.addEventListener('click', function(){
+    var pw = commonPw.value || '';
+    if (!hasBridge()) return;
+    var cards = listEl.querySelectorAll('.card');
+    for (var i = 0; i < cached.length; i++) {
+      var uid = cached[i] && cached[i].userId;
+      if (!uid) continue;
+      savePassword(uid, pw);
+      cached[i].password = pw;
+    }
+    // refresh inputs
+    var inputs = listEl.querySelectorAll('.pw-input');
+    for (var j = 0; j < inputs.length; j++) inputs[j].value = pw;
+    alert('全件にパスワードを入れました');
+  });
+
+  copyAllBtn.addEventListener('click', function(){
+    var common = (commonPw.value || '').trim();
+    var lines = [];
+    var items = cached.slice().sort(function(a,b){
+      return String(b.at||'').localeCompare(String(a.at||''));
+    });
+    for (var i = 0; i < items.length; i++) {
+      var it = items[i] || {};
+      var uid = it.userId || '';
+      if (!uid) continue;
+      var pw = String(it.password || '').trim() || common;
+      if (!pw) continue;
+      if (lines.length) lines.push('');
+      lines.push(uid);
+      lines.push(pw);
+    }
+    if (!lines.length) {
+      alert('パスワードが入っている項目がありません');
+      return;
+    }
+    copyText(lines.join('\n')).then(function(){
+      alert('一発コピペ用テキストをコピーしました');
+    }).catch(function(){});
   });
 
   loadFromBridge();

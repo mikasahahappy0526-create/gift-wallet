@@ -391,13 +391,14 @@ tr{cursor:pointer;}
   try{
     var q=new URLSearchParams(location.search);
     if(q.get('nosplash')==='1') skip=true;
-    if(localStorage.getItem('gw_skip_splash')==='1') skip=true;
+    if(sessionStorage.getItem('gw_skip_splash')==='1') skip=true;
   }catch(e){}
+  try{localStorage.removeItem('gw_skip_splash');}catch(e){}
   if(skip){
     if(sp){sp.style.display='none';sp.classList.add('hide');}
     return;
   }
-  try{localStorage.setItem('gw_skip_splash','1');}catch(e){}
+  try{sessionStorage.setItem('gw_skip_splash','1');}catch(e){}
   var cv=document.getElementById('splashCanvas');
   var ctx=cv.getContext('2d');
   var ce=document.getElementById('splashCenter');
@@ -935,6 +936,26 @@ function handleCalFileSelect(e){
     r.readAsText(file,'UTF-8');
   });
 }
+
+/** Android CSV auto-sync: import text with a fixed slot name so monthly re-imports overwrite. */
+window.importGiftWalletCsvText = function(text, name){
+  try {
+    name = name || 'ポイント履歴_今月.csv';
+    const {headers:h, rows, type} = parseCSV(String(text || ''));
+    if (!rows || !rows.length) {
+      if (typeof showToast === 'function') showToast('CSVに有効なデータがありません');
+      return false;
+    }
+    const idx = slotData.findIndex(s => s && s.name === name);
+    const i = idx >= 0 ? idx : slotData.length;
+    slotData[i] = { rows, headers:h, name, size: String(text || '').length, checked:true, type };
+    directAggregate();
+    return true;
+  } catch (e) {
+    if (typeof showToast === 'function') showToast('CSVの取込に失敗しました');
+    return false;
+  }
+};
 
 // モーダルを経由せず直接集計（カレンダーページのCSV読込専用）
 // ===== 支出（交換）行のブランド分類 =====
