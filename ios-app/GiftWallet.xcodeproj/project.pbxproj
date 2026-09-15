@@ -1,0 +1,292 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B5F41078B4744A018E6E6C6C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60BCC282A0134806A52D3B51 /* AppDelegate.swift */; };
+		93FBE92203A44E3FB95180BF /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879D304A11C44F0497B6C66C /* WebViewController.swift */; };
+		C4B2A242A20649A2B06F4502 /* GiftWalletBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B19A9F27DED429A85EB30C9 /* GiftWalletBridge.swift */; };
+		4A7072A7711C4378BBDEA4F8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A0C36F5BA4DF470BA9A781B1 /* Assets.xcassets */; };
+		337B62FCB6CF4407999568AB /* helper-base.js in Resources */ = {isa = PBXBuildFile; fileRef = 0122D4148088427BB5B6683C /* helper-base.js */; };
+		6A24C094AC314026931DADE9 /* helper-full.js in Resources */ = {isa = PBXBuildFile; fileRef = 2740EDBA323D4E6C87412124 /* helper-full.js */; };
+		220241FAFCB04272A2FAA8EE /* helper-quick.js in Resources */ = {isa = PBXBuildFile; fileRef = 33AEDD0ED28D4BBC8CA7E874 /* helper-quick.js */; };
+		BD659D2F123046C7B863AF6A /* home-inject.js in Resources */ = {isa = PBXBuildFile; fileRef = 6B8B886DEBFB4EA4B70978EF /* home-inject.js */; };
+		75F07FAFC04F4A54A0279147 /* vaton-balance.js in Resources */ = {isa = PBXBuildFile; fileRef = F4912521069A46C2863AC289 /* vaton-balance.js */; };
+		886539F565A443E8B466066A /* vaton-csv.js in Resources */ = {isa = PBXBuildFile; fileRef = 9A2FAE6EA5E74A54B25A4646 /* vaton-csv.js */; };
+		FBE19506328C40BDB5949F79 /* giftwallet-bridge.js in Resources */ = {isa = PBXBuildFile; fileRef = 7A405DDF0E074E86B2E4D358 /* giftwallet-bridge.js */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		3D3CAABECC9441D3871EFF6D /* GiftWallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GiftWallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		60BCC282A0134806A52D3B51 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		879D304A11C44F0497B6C66C /* WebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
+		7B19A9F27DED429A85EB30C9 /* GiftWalletBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiftWalletBridge.swift; sourceTree = "<group>"; };
+		D1F02B7E3A6E4AE68800DB03 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A0C36F5BA4DF470BA9A781B1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		0122D4148088427BB5B6683C /* helper-base.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "helper-base.js"; sourceTree = "<group>"; };
+		2740EDBA323D4E6C87412124 /* helper-full.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "helper-full.js"; sourceTree = "<group>"; };
+		33AEDD0ED28D4BBC8CA7E874 /* helper-quick.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "helper-quick.js"; sourceTree = "<group>"; };
+		6B8B886DEBFB4EA4B70978EF /* home-inject.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "home-inject.js"; sourceTree = "<group>"; };
+		F4912521069A46C2863AC289 /* vaton-balance.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "vaton-balance.js"; sourceTree = "<group>"; };
+		9A2FAE6EA5E74A54B25A4646 /* vaton-csv.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "vaton-csv.js"; sourceTree = "<group>"; };
+		7A405DDF0E074E86B2E4D358 /* giftwallet-bridge.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "giftwallet-bridge.js"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BC15D3F7DAB1474F8E35B9DB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		433EBFB5961148CC9E41D6AD = {
+			isa = PBXGroup;
+			children = (
+				77E041894D934DBF9F16C7E5 /* GiftWallet */,
+				A60E769A6572450A8FD2E542 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A60E769A6572450A8FD2E542 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3D3CAABECC9441D3871EFF6D /* GiftWallet.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		77E041894D934DBF9F16C7E5 /* GiftWallet */ = {
+			isa = PBXGroup;
+			children = (
+				60BCC282A0134806A52D3B51 /* AppDelegate.swift */,
+				879D304A11C44F0497B6C66C /* WebViewController.swift */,
+				7B19A9F27DED429A85EB30C9 /* GiftWalletBridge.swift */,
+				2297EC818C7742AAAC7612C7 /* Inject */,
+				A0C36F5BA4DF470BA9A781B1 /* Assets.xcassets */,
+				D1F02B7E3A6E4AE68800DB03 /* Info.plist */,
+			);
+			path = GiftWallet;
+			sourceTree = "<group>";
+		};
+		2297EC818C7742AAAC7612C7 /* Inject */ = {
+			isa = PBXGroup;
+			children = (
+				7A405DDF0E074E86B2E4D358 /* giftwallet-bridge.js */,
+				0122D4148088427BB5B6683C /* helper-base.js */,
+				2740EDBA323D4E6C87412124 /* helper-full.js */,
+				33AEDD0ED28D4BBC8CA7E874 /* helper-quick.js */,
+				6B8B886DEBFB4EA4B70978EF /* home-inject.js */,
+				F4912521069A46C2863AC289 /* vaton-balance.js */,
+				9A2FAE6EA5E74A54B25A4646 /* vaton-csv.js */,
+			);
+			path = Inject;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0A4644953A034AF18FD18E19 /* GiftWallet */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = ACF7937E5501422DB6ABE0FC /* Build configuration list for PBXNativeTarget "GiftWallet" */;
+			buildPhases = (
+				8E3EB71DE67A4D738FCB28C2 /* Sources */,
+				BC15D3F7DAB1474F8E35B9DB /* Frameworks */,
+				3167B40E4DBC48D69E2BAD02 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = GiftWallet;
+			productName = GiftWallet;
+			productReference = 3D3CAABECC9441D3871EFF6D /* GiftWallet.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D5AADED252F84F658CF67DAA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					0A4644953A034AF18FD18E19 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = 89814B1D15B3470DB24CBAD2 /* Build configuration list for PBXProject "GiftWallet" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = ja;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				ja,
+				Base,
+			);
+			mainGroup = 433EBFB5961148CC9E41D6AD;
+			productRefGroup = A60E769A6572450A8FD2E542 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				0A4644953A034AF18FD18E19 /* GiftWallet */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		3167B40E4DBC48D69E2BAD02 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4A7072A7711C4378BBDEA4F8 /* Assets.xcassets in Resources */,
+				FBE19506328C40BDB5949F79 /* giftwallet-bridge.js in Resources */,
+				337B62FCB6CF4407999568AB /* helper-base.js in Resources */,
+				6A24C094AC314026931DADE9 /* helper-full.js in Resources */,
+				220241FAFCB04272A2FAA8EE /* helper-quick.js in Resources */,
+				BD659D2F123046C7B863AF6A /* home-inject.js in Resources */,
+				75F07FAFC04F4A54A0279147 /* vaton-balance.js in Resources */,
+				886539F565A443E8B466066A /* vaton-csv.js in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8E3EB71DE67A4D738FCB28C2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B5F41078B4744A018E6E6C6C /* AppDelegate.swift in Sources */,
+				93FBE92203A44E3FB95180BF /* WebViewController.swift in Sources */,
+				C4B2A242A20649A2B06F4502 /* GiftWalletBridge.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		EB951986951E48A9AD8E2E37 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		2E09AEBE8BEF495FA9221244 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		949D47ED05CB43549BE05686 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = GiftWallet/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "ギフトウォレット";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.giftwallet.ios;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B593EDAB9CF24F1085D052E0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = GiftWallet/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "ギフトウォレット";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.giftwallet.ios;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		89814B1D15B3470DB24CBAD2 /* Build configuration list for PBXProject "GiftWallet" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EB951986951E48A9AD8E2E37 /* Debug */,
+				2E09AEBE8BEF495FA9221244 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		ACF7937E5501422DB6ABE0FC /* Build configuration list for PBXNativeTarget "GiftWallet" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				949D47ED05CB43549BE05686 /* Debug */,
+				B593EDAB9CF24F1085D052E0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D5AADED252F84F658CF67DAA /* Project object */;
+}
