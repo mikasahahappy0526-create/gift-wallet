@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>クイック引き出し 自動タップ設定</title>
+<style>
+  :root { --bg:#080810; --card:#12121e; --border:#252535; --gold:#d4a843; --text:#e8e8f0; --muted:#9090a8; }
+  *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:20px 16px 48px;max-width:520px;margin:0 auto}
+  h1{font-size:1.25rem;margin:0 0 8px} p{color:var(--muted);margin:0 0 16px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin:0 0 14px}
+  .card h2{font-size:1rem;margin:0 0 8px;color:var(--gold)}
+  ol{margin:0;padding-left:1.2em} li{margin:0 0 8px}
+  a.btn{display:block;text-align:center;background:var(--gold);color:#111;font-weight:800;text-decoration:none;border-radius:12px;padding:14px 12px;margin:10px 0}
+  a.btn.secondary{background:transparent;border:1px solid var(--gold);color:var(--gold)}
+  code{font-size:.85em;background:#1a1a2e;padding:2px 6px;border-radius:6px}
+  .note{font-size:.9rem;color:var(--muted)}
+</style>
+</head>
+<body>
+  <h1>⚡ 新しいセッション自動タップ</h1>
+  <p>ギフトウォレットの「クイック引き出し」から開いたときだけ、Cushin の「+ 新しいセッション」を自動で押します。</p>
+
+  <div class="card">
+    <h2>1. スクリプトを入れる（初回だけ）</h2>
+    <p class="note">ブラウザ拡張か、Userscripts 対応アプリが必要です。</p>
+    <ol>
+      <li>PCなら <strong>Violentmonkey</strong> か <strong>Tampermonkey</strong> を入れる</li>
+      <li>iPhoneなら App Store の <strong>Userscripts</strong> などを入れる</li>
+      <li>下のボタンからスクリプトを開いてインストールする</li>
+    </ol>
+    <a class="btn" href="./cushin-auto-session.user.js">スクリプトをインストール</a>
+  </div>
+
+  <div class="card">
+    <h2>2. ギフトウォレットから開く</h2>
+    <ol>
+      <li><a href="./index.html" style="color:var(--gold)">ギフトウォレット</a> に戻る</li>
+      <li>「クイック引き出し」をタップ</li>
+      <li>未ログインならログインする</li>
+      <li>クイック引き出し画面で自動的に「+ 新しいセッション」が押される</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>補足</h2>
+    <p class="note">自動タップは URL に <code>#auto-new-session</code> が付いているときだけ動きます。ギフトウォレットのボタンにはすでに付いています。Cushin を普通に開いただけでは押しません。</p>
+    <a class="btn secondary" href="https://cushintools.net/dashboard/quick-withdraw#auto-new-session" target="_blank" rel="noopener">テストでクイック引き出しを開く</a>
+  </div>
+</body>
+</html>

@@ -712,9 +712,14 @@ tr{cursor:pointer;}
           <div class="ext-link-body"><div class="ext-link-title">ギフトウォレット</div><div class="ext-link-sub">えらべるPayのポイント履歴CSV</div></div>
           <div class="ext-link-arrow">›</div>
         </a>
-        <a href="https://cushintools.net/dashboard/quick-withdraw" target="_blank" rel="noopener" class="ext-link-card">
+        <a href="https://cushintools.net/dashboard/quick-withdraw#auto-new-session" target="_blank" rel="noopener" class="ext-link-card">
           <div class="ext-link-icon" style="background:#dbeafe;">⚡</div>
-          <div class="ext-link-body"><div class="ext-link-title">クイック引き出し</div><div class="ext-link-sub">Cushinでログイン後、QRセッション画面を開く</div></div>
+          <div class="ext-link-body"><div class="ext-link-title">クイック引き出し</div><div class="ext-link-sub">ログイン後、新しいセッションまで自動（要・設定）</div></div>
+          <div class="ext-link-arrow">›</div>
+        </a>
+        <a href="./cushin-setup.html" class="ext-link-card">
+          <div class="ext-link-icon" style="background:#ede9fe;">🛠️</div>
+          <div class="ext-link-body"><div class="ext-link-title">自動タップ設定</div><div class="ext-link-sub">新しいセッションを自動で押す準備</div></div>
           <div class="ext-link-arrow">›</div>
         </a>
         <a href="paypay://home" onclick="handlePayPayJump(event)" class="ext-link-card">
@@ -2310,7 +2315,7 @@ function aiQuickSend(text){
       <button onclick="launchApp('kyash://','https://apps.apple.com/jp/app/kyash/id1084264883','https://play.google.com/store/apps/details?id=io.kyash.android')" style="display:flex;flex-direction:column;align-items:center;gap:5px;background:var(--gray5);border:1.5px solid var(--border);border-radius:14px;padding:12px 4px 10px;cursor:pointer;">
         <span style="font-size:28px;">💙</span><span style="font-size:10px;font-weight:700;color:var(--text3);">Kyash</span>
       </button>
-      <a href="https://cushintools.net/dashboard/quick-withdraw" target="_blank" rel="noopener" onclick="closeWalletModal()" style="display:flex;flex-direction:column;align-items:center;gap:5px;background:var(--gray5);border:1.5px solid var(--border);border-radius:14px;padding:12px 4px 10px;cursor:pointer;text-decoration:none;">
+      <a href="https://cushintools.net/dashboard/quick-withdraw#auto-new-session" target="_blank" rel="noopener" onclick="closeWalletModal()" style="display:flex;flex-direction:column;align-items:center;gap:5px;background:var(--gray5);border:1.5px solid var(--border);border-radius:14px;padding:12px 4px 10px;cursor:pointer;text-decoration:none;">
         <span style="font-size:28px;">⚡</span><span style="font-size:10px;font-weight:700;color:var(--text3);">クイック引出</span>
       </a>
     </div>
