@@ -42,7 +42,7 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;-webkit-tap-highlight-color:transparent;}
 body{font-family:"DotGothic16",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;}
-.page{display:none;min-height:100vh;padding-bottom:120px;}
+.page{display:none;min-height:100vh;padding-bottom:calc(168px + env(safe-area-inset-bottom));}
 .page.active{display:block;}
 
 /* ===== TOPNAV ===== */
@@ -96,17 +96,17 @@ body{font-family:"DotGothic16",sans-serif;background:var(--bg);color:var(--text)
 /* ===== フッターカード（月合計エリア） ===== */
 .cal-footer{padding:10px 10px 0;}
 .footer-card{background:var(--navy2);border-radius:var(--r);box-shadow:var(--sh2);padding:16px;display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);}
-.f-total-val{font-size:clamp(40px,11vw,58px);font-weight:900;color:var(--gold);font-family:"DM Mono",monospace;letter-spacing:-2px;line-height:1;text-shadow:0 0 30px rgba(212,168,67,.4);}
-.f-total-sub{font-size:13px;color:var(--gray);margin-top:8px;letter-spacing:.04em;}
+.f-total-val{font-size:clamp(28px,7.2vw,40px);font-weight:900;color:var(--gold);font-family:"DM Mono",monospace;letter-spacing:-1.5px;line-height:1;text-shadow:0 0 22px rgba(212,168,67,.35);}
+.f-total-sub{font-size:11px;color:var(--gray);margin-top:4px;letter-spacing:.04em;}
 .f-total-row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;max-width:100%;}
-.f-total-bal{font-size:clamp(32px,9vw,48px);font-weight:900;color:var(--gold);font-family:"DM Mono",monospace;letter-spacing:-1px;line-height:1;text-shadow:0 0 24px rgba(212,168,67,.35);}
-.f-total-slash{color:var(--gray);font-size:clamp(24px,7vw,36px);font-weight:700;font-family:"DM Mono",monospace;letter-spacing:0;line-height:1;}
-#gwHideBalanceBtn{appearance:none;border:1px solid rgba(212,168,67,.35);background:rgba(212,168,67,.1);color:var(--gold);border-radius:999px;width:38px;height:38px;padding:0;font-size:18px;line-height:1;cursor:pointer;flex-shrink:0;align-self:center;display:inline-flex;align-items:center;justify-content:center;}
+.f-total-bal{font-size:clamp(18px,5vw,26px);font-weight:900;color:var(--gold);font-family:"DM Mono",monospace;letter-spacing:-.5px;line-height:1;text-shadow:0 0 16px rgba(212,168,67,.3);}
+.f-total-slash{color:var(--gray);font-size:clamp(16px,4.5vw,22px);font-weight:700;font-family:"DM Mono",monospace;letter-spacing:0;line-height:1;}
+#gwHideBalanceBtn{appearance:none;border:1px solid rgba(212,168,67,.35);background:rgba(212,168,67,.1);color:var(--gold);border-radius:999px;width:28px;height:28px;padding:0;font-size:14px;line-height:1;cursor:pointer;flex-shrink:0;align-self:center;display:inline-flex;align-items:center;justify-content:center;}
 #gwHideBalanceBtn:active{transform:scale(.94);}
 .f-bal-block{display:flex;flex-direction:column;min-width:0;}
-.f-bal-label{font-size:12px;font-weight:800;color:var(--gray);letter-spacing:.14em;font-family:'DM Mono',monospace;margin-bottom:6px;}
+.f-bal-label{font-size:10px;font-weight:800;color:var(--gray);letter-spacing:.12em;font-family:'DM Mono',monospace;margin-bottom:3px;}
 .f-bal-value-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.cal-section-tabs{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 12px 6px;margin:8px 10px 0;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.cal-section-tabs{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 10px 10px;margin:0;overflow-x:auto;-webkit-overflow-scrolling:touch;position:sticky;bottom:calc(88px + env(safe-area-inset-bottom));z-index:180;background:var(--bg);border-top:1px solid var(--border);}
 .cal-section-tab{appearance:none;border:1px solid var(--border);background:var(--gray5);color:var(--text2);border-radius:999px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.04em;white-space:nowrap;flex-shrink:0;}
 .cal-section-tab.active{background:rgba(212,168,67,.18);border-color:rgba(212,168,67,.45);color:var(--gold);}
 .cal-section-tab:active{transform:scale(.97);}
@@ -150,7 +150,7 @@ body{font-family:"DotGothic16",sans-serif;background:var(--bg);color:var(--text)
 .dow-cell:first-child{color:var(--red);}
 .dow-cell:last-child{color:var(--blue);}
 .cal-cells{display:grid;grid-template-columns:repeat(7,1fr);}
-.cal-cell{min-height:70px;border-bottom:1px solid rgba(37,37,53,.8);border-right:1px solid rgba(37,37,53,.8);padding:5px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--navy2);position:relative;transition:background .15s;}
+.cal-cell{min-height:clamp(48px,8.2vh,62px);border-bottom:1px solid rgba(37,37,53,.8);border-right:1px solid rgba(37,37,53,.8);padding:5px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--navy2);position:relative;transition:background .15s;}
 .cal-cell:nth-child(7n){border-right:none;}
 .cal-cell.other{opacity:.15;}
 .cal-cell.has-charge{background:rgba(212,168,67,.04);}
@@ -467,7 +467,7 @@ tr{cursor:pointer;}
   <!-- フッターカード -->
   <div style="padding:8px 10px 0;">
     <input type="file" id="calFileInput" accept=".csv,text/csv,text/plain,application/csv,application/vnd.ms-excel" multiple style="display:none;" onchange="handleCalFileSelect(event)">
-    <div class="footer-card" style="flex-direction:column;gap:0;padding:18px 16px 16px;">
+    <div class="footer-card" style="flex-direction:column;gap:0;padding:12px 14px 10px;">
       <div class="f-total-row" style="align-items:flex-end;width:100%;">
         <div class="f-bal-block">
           <div class="f-bal-label">月間合計</div>
