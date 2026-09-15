@@ -269,17 +269,11 @@ class MainActivity : AppCompatActivity() {
                     url.contains("/dashboard/quick-withdraw") || url.contains("auto-new-session")
                 val js = if (isQuick) HELPER_JS_FULL else HELPER_JS_BASE
                 view.evaluateJavascript(js, null)
-                view.evaluateJavascript(CUSHIN_GIFT_JS, null)
+                // Auto-charge of gift links into wallet.vaton.jp removed (too heavy).
             }
             url.contains("wallet.vaton.jp") -> {
                 view.evaluateJavascript(VATON_CSV_JS, null)
                 view.evaluateJavascript(VATON_BALANCE_JS, null)
-                if (chargeBusy || isVatonChargePath(url)) {
-                    view.evaluateJavascript(CHARGE_AUTO_JS, null)
-                }
-            }
-            isGiftChargeHost(url) -> {
-                view.evaluateJavascript(CHARGE_AUTO_JS, null)
             }
             url.contains("gift-wallet.pages.dev") -> {
                 view.evaluateJavascript(HOME_INJECT_JS, null)
@@ -343,54 +337,27 @@ class MainActivity : AppCompatActivity() {
         saveChargedSet(set)
     }
 
+    // Auto-charge queue disabled — stubs kept so any leftover bridge calls are harmless.
     private fun enqueueChargeUrl(raw: String) {
-        val url = normalizeGiftUrl(raw)
-        if (url.isEmpty()) return
-        if (isUrlCharged(url)) return
-        if (url == currentChargeUrl || chargeQueue.contains(url)) return
-        chargeQueue.addLast(url)
-        if (!chargeBusy) pumpChargeQueue()
+        // no-op: do not open giftee URLs or auto-tap charge buttons
     }
 
     private fun pumpChargeQueue() {
-        if (chargeBusy) return
-        val next = chargeQueue.pollFirst()
-        if (next == null) {
-            currentChargeUrl = null
-            return
-        }
-        chargeBusy = true
-        currentChargeUrl = next
-        Toast.makeText(this, "チャージ中", Toast.LENGTH_SHORT).show()
-        webView.loadUrl(next)
-        syncHandler.postDelayed({
-            if (chargeBusy && currentChargeUrl == next) {
-                markUrlCharged(next)
-                chargeBusy = false
-                currentChargeUrl = null
-                if (chargeQueue.isNotEmpty()) pumpChargeQueue()
-                else webView.loadUrl(HOME_URL_NOSPLASH)
-            }
-        }, 180_000L)
+        chargeQueue.clear()
+        chargeBusy = false
+        currentChargeUrl = null
     }
 
     private fun finishCurrentCharge(success: Boolean) {
-        val cur = currentChargeUrl
-        if (cur != null) markUrlCharged(cur)
         chargeBusy = false
         currentChargeUrl = null
-        if (success) {
-            Toast.makeText(this, "チャージしました", Toast.LENGTH_SHORT).show()
-        }
-        if (chargeQueue.isNotEmpty()) pumpChargeQueue()
-        else webView.loadUrl(HOME_URL_NOSPLASH)
+        chargeQueue.clear()
     }
 
     private fun abortChargeForLogin() {
         chargeQueue.clear()
         chargeBusy = false
         currentChargeUrl = null
-        Toast.makeText(this, "ギフトウォレットにログインしてください", Toast.LENGTH_LONG).show()
     }
 
     inner class GiftWalletBridge {
@@ -564,31 +531,27 @@ class MainActivity : AppCompatActivity() {
 
         @JavascriptInterface
         fun chargeGiftUrl(url: String) {
-            runOnUiThread { enqueueChargeUrl(url) }
+            // no-op: auto-charge removed
         }
 
         @JavascriptInterface
         fun onChargeComplete() {
-            runOnUiThread { finishCurrentCharge(success = true) }
+            // no-op
         }
 
         @JavascriptInterface
         fun notifyChargeLoginRequired() {
-            runOnUiThread { abortChargeForLogin() }
+            // no-op
         }
 
         @JavascriptInterface
         fun isGiftUrlCharged(url: String): Boolean {
-            val u = normalizeGiftUrl(url)
-            if (u.isEmpty()) return true
-            return isUrlCharged(u)
+            return true
         }
 
         @JavascriptInterface
         fun clearChargeQueue() {
-            runOnUiThread {
-                chargeQueue.clear()
-            }
+            runOnUiThread { chargeQueue.clear() }
         }
     }
 
@@ -776,12 +739,6 @@ class MainActivity : AppCompatActivity() {
               if (window.__gwHelpersQuick) return;
               window.__gwHelpersQuick = true;
 
-              try {
-                if (location.hash && location.hash.indexOf('auto-new-session') >= 0) {
-                  window.__gwWantGiftArm = true;
-                }
-              } catch (e) {}
-
               function clearHash(){
                 try {
                   if (location.hash && location.hash.indexOf('auto-new-session') >= 0) {
@@ -884,7 +841,6 @@ class MainActivity : AppCompatActivity() {
                     }
                     var btn = document.querySelector('button[data-action="new-qr"]:not([disabled])');
                     if (btn) {
-                      try { window.__gwWantGiftArm = true; } catch (e) {}
                       clearHash();
                       btn.click();
                       return;
@@ -1397,647 +1353,10 @@ private val VATON_BALANCE_JS = """
             })();
         """.trimIndent()
 
-        private val CUSHIN_GIFT_JS = """
-            (function(){
-              if (window.__gwCushinGift) return;
-              window.__gwCushinGift = true;
-              var seen = {};
-              var fetchTried = {};
-              var doneIds = {};
-              var knownStatus = {};
-              var pendingWatch = {};
-              var historicalSuccess = {};
-              var baselineIds = {};
-              var baselineReady = false;
-              var watchArmed = false;
-              var armTime = 0;
-              var wantArm = false;
-              var armReason = '';
+        // Removed: Cushin → wallet.vaton.jp auto-charge (was too heavy).
+        private val CUSHIN_GIFT_JS = """(function(){ /* auto-charge removed */ })();""".trimIndent()
 
-              function toast(msg){
-                try {
-                  if (window.GiftWallet && window.GiftWallet.showToast) window.GiftWallet.showToast(String(msg));
-                } catch (e) {}
-              }
-
-              function isGiftUrl(u){
-                try {
-                  var s = String(u || '').trim();
-                  if (!s || s.indexOf('http') !== 0) return false;
-                  var low = s.toLowerCase();
-                  return low.indexOf('giftee') >= 0 || low.indexOf('g4b.') >= 0 ||
-                    low.indexOf('eraberu') >= 0 || low.indexOf('giftee_boxes') >= 0 ||
-                    low.indexOf('gift_url') >= 0;
-                } catch (e) { return false; }
-              }
-
-              function alreadyCharged(url){
-                try {
-                  if (window.GiftWallet && window.GiftWallet.isGiftUrlCharged) {
-                    return !!window.GiftWallet.isGiftUrlCharged(String(url));
-                  }
-                } catch (e) {}
-                return !!seen[url];
-              }
-
-              function isSuccessStatus(status){
-                var s = String(status || '').toLowerCase();
-                return s === 'success' || s === 'completed' || s.indexOf('success') >= 0;
-              }
-
-              function isWaitingStatus(status){
-                var s = String(status || '').toLowerCase();
-                return s.indexOf('waiting') >= 0 || s.indexOf('waiting_qr') >= 0 ||
-                  s.indexOf('scan') >= 0 || s.indexOf('pending') >= 0 ||
-                  s.indexOf('qr') >= 0;
-              }
-
-              function itemTimestampMs(item){
-                try {
-                  var raw = item.updated_at || item.updatedAt || item.completed_at ||
-                    item.created_at || item.createdAt || item.at || '';
-                  if (!raw) return 0;
-                  var t = Date.parse(String(raw));
-                  return isNaN(t) ? 0 : t;
-                } catch (e) { return 0; }
-              }
-
-              function markBaselineFromKnown(){
-                for (var id in knownStatus) {
-                  if (!Object.prototype.hasOwnProperty.call(knownStatus, id)) continue;
-                  baselineIds[id] = 1;
-                  if (isSuccessStatus(knownStatus[id])) historicalSuccess[id] = 1;
-                }
-              }
-
-              function finishBaseline(){
-                if (baselineReady) return;
-                baselineReady = true;
-                markBaselineFromKnown();
-                tryArm();
-              }
-
-              function armWatch(reason){
-                if (watchArmed) return;
-                watchArmed = true;
-                armTime = Date.now();
-                markBaselineFromKnown();
-                try {
-                  if (window.GiftWallet && window.GiftWallet.clearChargeQueue) {
-                    window.GiftWallet.clearChargeQueue();
-                  }
-                } catch (e) {}
-                try { console.log('[gw] gift watch armed:', reason || ''); } catch (e) {}
-              }
-
-              function requestArm(reason){
-                wantArm = true;
-                if (reason) armReason = reason;
-                tryArm();
-              }
-
-              function tryArm(){
-                if (watchArmed) return;
-                if (!wantArm) return;
-                if (!baselineReady) return;
-                armWatch(armReason || 'requested');
-              }
-
-              function processLinks(links){
-                if (!watchArmed) return;
-                if (!links || !links.length) return;
-                for (var i = 0; i < links.length; i++) {
-                  var url = String(links[i] || '').trim();
-                  if (!url || !isGiftUrl(url)) continue;
-                  if (seen[url] || alreadyCharged(url)) continue;
-                  seen[url] = true;
-                  try {
-                    if (window.GiftWallet && window.GiftWallet.copyText) {
-                      window.GiftWallet.copyText(url);
-                    } else if (navigator.clipboard && navigator.clipboard.writeText) {
-                      navigator.clipboard.writeText(url);
-                      toast('リンクをコピーしました');
-                    }
-                  } catch (e) {}
-                  try {
-                    if (window.GiftWallet && window.GiftWallet.chargeGiftUrl) {
-                      window.GiftWallet.chargeGiftUrl(url);
-                    }
-                  } catch (e) {}
-                }
-              }
-
-              function shouldProcessSuccess(item){
-                if (!watchArmed) return false;
-                var id = item && item.id != null ? String(item.id) : '';
-                if (id && doneIds[id]) return false;
-                if (id && historicalSuccess[id]) return false;
-                if (id && pendingWatch[id]) return true;
-                var ts = itemTimestampMs(item);
-                if (ts && armTime && ts >= armTime - 2000) return true;
-                if (id && !baselineIds[id]) return true;
-                return false;
-              }
-
-              function noteItemStatus(item){
-                try {
-                  if (!item || typeof item !== 'object') return;
-                  var id = item.id != null ? String(item.id) : '';
-                  if (!id) return;
-                  var status = String(item.status || item.state || item.result || item.status_group || '');
-                  var prev = knownStatus[id];
-                  knownStatus[id] = status;
-                  if (!baselineReady) {
-                    baselineIds[id] = 1;
-                    if (isSuccessStatus(status)) historicalSuccess[id] = 1;
-                    return;
-                  }
-                  if (!watchArmed) {
-                    if (isSuccessStatus(status)) historicalSuccess[id] = 1;
-                    else {
-                      pendingWatch[id] = 1;
-                      if (!baselineIds[id] && isWaitingStatus(status)) {
-                        requestArm('new-waiting');
-                      }
-                    }
-                    return;
-                  }
-                  // armed
-                  if (!isSuccessStatus(status)) {
-                    pendingWatch[id] = 1;
-                    if (!baselineIds[id] && isWaitingStatus(status)) {
-                      // already armed; just track
-                    }
-                  } else if (prev && !isSuccessStatus(prev)) {
-                    pendingWatch[id] = 1;
-                  }
-                } catch (e) {}
-              }
-
-              function lookItem(item){
-                try {
-                  if (!item || typeof item !== 'object') return;
-                  noteItemStatus(item);
-                  var status = String(item.status || item.state || item.result || item.status_group || '').toLowerCase();
-                  var ok = isSuccessStatus(status);
-                  if (!ok) return;
-                  if (!shouldProcessSuccess(item)) return;
-
-                  var id = item.id != null ? String(item.id) : '';
-                  var links = item.links || item.gift_links || item.giftLinks || item.gift_urls || [];
-                  if (links && typeof links === 'string') links = [links];
-                  var usable = [];
-                  if (links && links.length) {
-                    for (var i = 0; i < links.length; i++) {
-                      var u = String(links[i] || '').trim();
-                      if (isGiftUrl(u)) usable.push(u);
-                    }
-                  }
-                  if (usable.length) {
-                    if (id) doneIds[id] = 1;
-                    processLinks(usable);
-                    return;
-                  }
-                  if (id && !fetchTried[id]) {
-                    fetchTried[id] = 1;
-                    setTimeout(function(){ clickFetchForId(id); }, 200);
-                    setTimeout(function(){ apiFetchLinks(id); }, 600);
-                  }
-                } catch (e) {}
-              }
-
-              function scanPayload(data){
-                try {
-                  if (!data) return;
-                  if (Array.isArray(data)) {
-                    for (var i = 0; i < data.length; i++) {
-                      lookItem(data[i]);
-                      if (data[i] && data[i].item) lookItem(data[i].item);
-                      if (data[i] && data[i].task_item) lookItem(data[i].task_item);
-                    }
-                    if (!baselineReady && data.length) finishBaseline();
-                    return;
-                  }
-                  if (typeof data !== 'object') return;
-                  lookItem(data);
-                  // Only process top-level links after arm and only if not a bare history dump
-                  if (watchArmed && data.links && Array.isArray(data.links) && shouldProcessLooseLinks(data)) {
-                    processLinks(data.links);
-                  }
-                  var keys = ['tasks','items','sessions','data','results','list','task_items','details'];
-                  for (var k = 0; k < keys.length; k++) {
-                    if (data[keys[k]]) scanPayload(data[keys[k]]);
-                  }
-                } catch (e) {}
-              }
-
-              function shouldProcessLooseLinks(data){
-                // gift-links API responses are OK; avoid treating history list wrappers as new gifts
-                try {
-                  if (data && (data.task_item_id || data.item_id || data.id)) return true;
-                } catch (e) {}
-                return false;
-              }
-
-              function authHeaders(){
-                var h = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
-                try {
-                  var tok = localStorage.getItem('kantan-token') || '';
-                  if (tok) h['Authorization'] = 'Bearer ' + tok;
-                } catch (e) {}
-                return h;
-              }
-
-              function apiFetchLinks(id){
-                try {
-                  if (!id || doneIds[id]) return;
-                  if (!watchArmed || !shouldProcessSuccess({ id: id, status: 'success' })) {
-                    // still allow if pendingWatch
-                    if (!(watchArmed && pendingWatch[id] && !historicalSuccess[id])) return;
-                  }
-                  fetch('/api/task-items/' + encodeURIComponent(id) + '/gift-links', {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    headers: authHeaders(),
-                    body: '{}'
-                  }).then(function(res){ return res.json().catch(function(){ return {}; }); })
-                    .then(function(data){
-                      var links = (data && data.links) ? data.links : [];
-                      if (typeof links === 'string') links = [links];
-                      var usable = [];
-                      for (var i = 0; i < (links || []).length; i++) {
-                        var u = String(links[i] || '').trim();
-                        if (isGiftUrl(u)) usable.push(u);
-                      }
-                      if (!usable.length) {
-                        doneIds[id] = 1;
-                        return;
-                      }
-                      doneIds[id] = 1;
-                      processLinks(usable);
-                    }).catch(function(){
-                      // do not loop forever on network errors — mark tried already via fetchTried
-                    });
-                } catch (e) {}
-              }
-
-              function clickFetchForId(id){
-                try {
-                  if (!id || !watchArmed || doneIds[id]) return false;
-                  if (historicalSuccess[id] && !pendingWatch[id]) return false;
-                  var btn = document.querySelector('button[data-action="fetch-links"][data-item-id="' + id + '"]');
-                  if (btn) { btn.click(); return true; }
-                } catch (e) {}
-                return false;
-              }
-
-              function scanDomLinks(){
-                try {
-                  if (!watchArmed) {
-                    // Detect new waiting / スキャン待ち cards to arm
-                    var cards = document.querySelectorAll('.qr-session-card, [class*="session"]');
-                    for (var i = 0; i < cards.length; i++) {
-                      var text = (cards[i].innerText || '');
-                      var low = text.toLowerCase();
-                      if (low.indexOf('waiting') >= 0 || text.indexOf('スキャン待ち') >= 0 ||
-                          low.indexOf('waiting_qr') >= 0) {
-                        if (baselineReady) requestArm('dom-waiting');
-                      }
-                    }
-                    return;
-                  }
-                  var anchors = document.querySelectorAll('a.table-link, a[href*="giftee"], a[href*="g4b."], a[href*="eraberu"]');
-                  var urls = [];
-                  for (var j = 0; j < anchors.length; j++) {
-                    var href = anchors[j].href || anchors[j].getAttribute('href') || '';
-                    if (isGiftUrl(href) && !alreadyCharged(href)) urls.push(href);
-                  }
-                  var boxes = document.querySelectorAll('[data-gift-link]');
-                  for (var k = 0; k < boxes.length; k++) {
-                    var g = boxes[k].getAttribute('data-gift-link') || '';
-                    if (isGiftUrl(g) && !alreadyCharged(g)) urls.push(g);
-                  }
-                  // Only charge DOM links that appeared on cards that look newly successful and not historical-only
-                  // Prefer API-driven flow; DOM links are a backup for the current success card near "成功"
-                  if (urls.length) {
-                    var pageText = ((document.body && document.body.innerText) || '');
-                    // Avoid bulk-charging every historical link: require a nearby success that is not alone with many history rows
-                    // Use only the last few gift anchors (newest UI tends to append)
-                    if (urls.length > 3) urls = urls.slice(-3);
-                    processLinks(urls);
-                  }
-                } catch (e) {}
-              }
-
-              function wrapFetch(){
-                try {
-                  if (window.__gwGiftFetchWrapped || typeof window.fetch !== 'function') return;
-                  window.__gwGiftFetchWrapped = true;
-                  var orig = window.fetch.bind(window);
-                  window.fetch = function(){
-                    var args = arguments;
-                    var url = '';
-                    try {
-                      if (typeof args[0] === 'string') url = args[0];
-                      else if (args[0] && args[0].url) url = args[0].url;
-                    } catch (e) {}
-                    return orig.apply(null, args).then(function(res){
-                      try {
-                        var u = String(url || (res && res.url) || '');
-                        if (u.indexOf('/api/') >= 0) {
-                          res.clone().json().then(function(data){
-                            scanPayload(data);
-                            if (u.indexOf('gift-links') >= 0) {
-                              var idMatch = u.match(/task-items\/([^\/]+)\/gift-links/);
-                              var gid = idMatch ? decodeURIComponent(idMatch[1]) : '';
-                              var links = (data && data.links) ? data.links : [];
-                              if (typeof links === 'string') links = [links];
-                              var usable = [];
-                              for (var i = 0; i < (links || []).length; i++) {
-                                var lu = String(links[i] || '').trim();
-                                if (isGiftUrl(lu)) usable.push(lu);
-                              }
-                              if (gid && !usable.length) {
-                                doneIds[gid] = 1;
-                              } else if (usable.length && watchArmed) {
-                                if (gid) doneIds[gid] = 1;
-                                processLinks(usable);
-                              }
-                            }
-                            if (!baselineReady && u.indexOf('/api/') >= 0) finishBaseline();
-                          }).catch(function(){});
-                        }
-                      } catch (e) {}
-                      return res;
-                    });
-                  };
-                } catch (e) {}
-              }
-
-              // Arm triggers
-              try {
-                if (location.hash && location.hash.indexOf('auto-new-session') >= 0) {
-                  requestArm('hash');
-                }
-                if (window.__gwWantGiftArm) requestArm('flag');
-              } catch (e) {}
-
-              document.addEventListener('click', function(ev){
-                try {
-                  var t = ev.target;
-                  for (var i = 0; i < 5 && t; i++) {
-                    if (t.getAttribute && t.getAttribute('data-action') === 'new-qr') {
-                      try { window.__gwWantGiftArm = true; } catch (e2) {}
-                      requestArm('new-qr-click');
-                      break;
-                    }
-                    t = t.parentElement;
-                  }
-                } catch (e) {}
-              }, true);
-
-              setInterval(function(){
-                try {
-                  if (window.__gwWantGiftArm) requestArm('flag-poll');
-                } catch (e) {}
-              }, 500);
-
-              wrapFetch();
-              function tick(){
-                scanDomLinks();
-                setTimeout(tick, 2000);
-              }
-              try {
-                var mo = new MutationObserver(function(){ scanDomLinks(); });
-                mo.observe(document.documentElement, { childList:true, subtree:true });
-              } catch (e) {}
-              tick();
-              setTimeout(function(){ finishBaseline(); }, 2500);
-              setTimeout(scanDomLinks, 1000);
-              setTimeout(scanDomLinks, 3000);
-            })();
-        """.trimIndent()
-
-        private val CHARGE_AUTO_JS = """
-            (function(){
-              if (window.__gwChargeAuto) return;
-              window.__gwChargeAuto = true;
-
-              function toast(msg){
-                try {
-                  if (window.GiftWallet && window.GiftWallet.showToast) window.GiftWallet.showToast(String(msg));
-                } catch (e) {}
-              }
-
-              function injectBackBtn(){
-                try {
-                  if (document.getElementById('gw-back-btn')) return;
-                  var btn = document.createElement('a');
-                  btn.id = 'gw-back-btn';
-                  btn.href = 'https://gift-wallet.pages.dev/?nosplash=1';
-                  btn.textContent = '← ギフトウォレット';
-                  btn.setAttribute('style', [
-                    'position:fixed','left:12px','bottom:18px','z-index:2147483647',
-                    'background:#d4a843','color:#111','font-weight:800','font-size:13px',
-                    'text-decoration:none','padding:10px 14px','border-radius:999px',
-                    'box-shadow:0 4px 16px rgba(0,0,0,.35)','font-family:system-ui,sans-serif',
-                    'letter-spacing:.02em','-webkit-tap-highlight-color:transparent'
-                  ].join(';'));
-                  (document.body || document.documentElement).appendChild(btn);
-                } catch (e) {}
-              }
-
-              function findBtnByTexts(texts){
-                var nodes = document.querySelectorAll('button, a, [role="button"], input[type="button"], input[type="submit"]');
-                for (var t = 0; t < texts.length; t++) {
-                  var want = texts[t];
-                  for (var i = 0; i < nodes.length; i++) {
-                    var el = nodes[i];
-                    if (el.disabled) continue;
-                    var s = (el.innerText || el.textContent || el.value || '').replace(/\s+/g,' ').trim();
-                    if (s.indexOf(want) >= 0) return el;
-                  }
-                }
-                return null;
-              }
-
-              function autoCheckTerms(){
-                try {
-                  var cbs = document.querySelectorAll('input[type="checkbox"]');
-                  for (var i = 0; i < cbs.length; i++) {
-                    var cb = cbs[i];
-                    if (cb.checked) continue;
-                    var label = '';
-                    try {
-                      if (cb.id) {
-                        var lab = document.querySelector('label[for="'+cb.id+'"]');
-                        if (lab) label = lab.innerText || '';
-                      }
-                      if (!label && cb.closest) {
-                        var wrap = cb.closest('label, div, li, section, form') || cb.parentElement;
-                        if (wrap) label = wrap.innerText || '';
-                      }
-                    } catch (e) {}
-                    var blob = (label || '') + ' ' + (cb.getAttribute('data-testid') || '');
-                    if (blob.indexOf('利用規約') >= 0 || blob.indexOf('同意') >= 0 ||
-                        blob.indexOf('terms') >= 0 || blob.indexOf('privacy') >= 0 ||
-                        blob.indexOf('個人情報') >= 0 || true) {
-                      // On charge/LP pages, checking visible unchecked boxes near agree text is intended.
-                      // Prefer boxes whose surrounding text mentions terms/agree; otherwise skip bare unrelated boxes.
-                      var near = blob.indexOf('利用規約') >= 0 || blob.indexOf('同意') >= 0 ||
-                        blob.indexOf('terms') >= 0 || blob.indexOf('プライバシー') >= 0 ||
-                        blob.indexOf('個人情報') >= 0 || (cb.getAttribute('data-testid') || '').indexOf('terms') >= 0;
-                      if (!near) continue;
-                      try {
-                        cb.click();
-                        if (!cb.checked) {
-                          cb.checked = true;
-                          cb.dispatchEvent(new Event('change', { bubbles:true }));
-                          cb.dispatchEvent(new Event('input', { bubbles:true }));
-                        }
-                      } catch (e) {}
-                    }
-                  }
-                } catch (e) {}
-              }
-
-              function looksLoggedOut(){
-                try {
-                  var path = (location.pathname || '').toLowerCase();
-                  if (path.indexOf('login') >= 0 || path.indexOf('sign_in') >= 0 || path.indexOf('signin') >= 0 || path.indexOf('/sign-in') >= 0) return true;
-                  var t = (document.body && (document.body.innerText || '')) || '';
-                  if (document.querySelector('input[type="password"]') && (t.indexOf('ログイン') >= 0 || t.indexOf('メール') >= 0)) return true;
-                  // Vaton LP may show 新規登録・ログインする as primary CTA when logged out
-                  if (t.indexOf('新規登録・ログインする') >= 0 && t.indexOf('ギフトをポイントに移行する') < 0 && t.indexOf('ポイントをチャージする') < 0) {
-                    // still allow if convert button exists elsewhere
-                    if (!findBtnByTexts(['ギフトをポイントに移行する','ポイントをチャージする','ポイントチャージ','ポイントに移行する'])) return true;
-                  }
-                } catch (e) {}
-                return false;
-              }
-
-              function isCompletion(){
-                try {
-                  var path = (location.pathname || '');
-                  if (path.indexOf('/point/charge/completion') >= 0) return true;
-                  if (path.indexOf('/serial_code/completion') >= 0) return true;
-                  var t = (document.body && (document.body.innerText || '')) || '';
-                  if (t.indexOf('ギフトを移行しました') >= 0) return true;
-                  if (t.indexOf('チャージが完了') >= 0 || t.indexOf('ポイントチャージが完了') >= 0) return true;
-                } catch (e) {}
-                return false;
-              }
-
-              function isGiftUsedOrEmpty(){
-                try {
-                  var t = (document.body && (document.body.innerText || '')) || '';
-                  var low = t.toLowerCase();
-                  if (t.indexOf('利用済み') >= 0) return true;
-                  if (t.indexOf('使用済み') >= 0) return true;
-                  if (t.indexOf('すでに利用') >= 0 || t.indexOf('既に利用') >= 0) return true;
-                  if (t.indexOf('ご利用済み') >= 0) return true;
-                  if (t.indexOf('このギフトは利用できません') >= 0) return true;
-                  if (t.indexOf('ギフトがありません') >= 0) return true;
-                  if (t.indexOf('残高がありません') >= 0) return true;
-                  if (t.indexOf('有効なギフトがありません') >= 0) return true;
-                  if (t.indexOf('空のギフト') >= 0) return true;
-                  if (low.indexOf('already used') >= 0) return true;
-                  if (low.indexOf('this gift has already been') >= 0) return true;
-                  if (low.indexOf('no gift') >= 0 && low.indexOf('available') >= 0) return true;
-                  if (t.indexOf('期限切れ') >= 0 && (t.indexOf('ギフト') >= 0 || low.indexOf('gift') >= 0)) return true;
-                } catch (e) {}
-                return false;
-              }
-
-              var completed = false;
-              var loginNotified = false;
-              var lastTapAt = 0;
-
-              function onComplete(){
-                if (completed) return;
-                completed = true;
-                try { if (window.__gwScrapeBalance) window.__gwScrapeBalance(); } catch (e) {}
-                try {
-                  if (window.GiftWallet && window.GiftWallet.onChargeComplete) {
-                    window.GiftWallet.onChargeComplete();
-                  }
-                } catch (e) {}
-              }
-
-              function autoTap(){
-                try {
-                  if (completed) return;
-                  if (isCompletion()) { onComplete(); return; }
-                  if (isGiftUsedOrEmpty()) {
-                    try { toast('利用済みまたは空のギフトです'); } catch (e) {}
-                    onComplete();
-                    return;
-                  }
-
-                  // Only auto-drive on gift/vaton charge flows
-                  var host = (location.hostname || '').toLowerCase();
-                  var path = (location.pathname || '');
-                  var onVaton = host.indexOf('wallet.vaton.jp') >= 0;
-                  var onGiftee = host.indexOf('giftee') >= 0 || host.indexOf('eraberu') >= 0;
-                  var chargePath = path.indexOf('/lp/convert_to_point') >= 0 ||
-                    path.indexOf('/lp/charge_serial_code') >= 0 ||
-                    path.indexOf('/lp/merge_to_point') >= 0 ||
-                    path.indexOf('/point/charge') >= 0 ||
-                    path.indexOf('/lp/') >= 0 ||
-                    path.indexOf('giftee_boxes') >= 0 ||
-                    path.indexOf('/gift') >= 0;
-
-                  if (!onVaton && !onGiftee) return;
-                  // Always show back button on these pages
-                  injectBackBtn();
-
-                  if (!(chargePath || onGiftee)) return;
-
-                  if (onVaton && looksLoggedOut()) {
-                    if (!loginNotified) {
-                      loginNotified = true;
-                      try {
-                        if (window.GiftWallet && window.GiftWallet.notifyChargeLoginRequired) {
-                          window.GiftWallet.notifyChargeLoginRequired();
-                        } else {
-                          toast('ギフトウォレットにログインしてください');
-                        }
-                      } catch (e) {}
-                    }
-                    return;
-                  }
-
-                  autoCheckTerms();
-                  var now = Date.now();
-                  if (now - lastTapAt < 1200) return;
-                  // Prefer convert-to-point over PayPay etc.
-                  var btn = findBtnByTexts([
-                    'ギフトをポイントに移行する',
-                    'ポイントに移行する',
-                    'ポイントをチャージする',
-                    'ポイントチャージ',
-                    'ギフトをえらぶ'
-                  ]);
-                  if (btn) {
-                    lastTapAt = now;
-                    try { btn.click(); } catch (e) {}
-                  }
-                } catch (e) {}
-              }
-
-              function tick(){
-                autoTap();
-                setTimeout(tick, 900);
-              }
-              injectBackBtn();
-              setTimeout(injectBackBtn, 800);
-              setTimeout(injectBackBtn, 2000);
-              try {
-                var mo = new MutationObserver(function(){ injectBackBtn(); autoTap(); });
-                mo.observe(document.documentElement, { childList:true, subtree:true });
-              } catch (e) {}
-              tick();
-            })();
-        """.trimIndent()
+        // Removed: giftee/vaton charge auto-tap.
+        private val CHARGE_AUTO_JS = """(function(){ /* charge auto-tap removed */ })();""".trimIndent()
     }
 }
