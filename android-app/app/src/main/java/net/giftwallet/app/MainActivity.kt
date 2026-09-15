@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        // CSV sync only on manual ギフト tap (startGiftWalletCsvSync) — no startup/hourly auto-nav
+        // CSV: manual only on vaton point_logs (ギフト opens history; user taps download). No auto sync.
     }
 
     override fun onDestroy() {
@@ -189,11 +189,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startCsvSync() {
-        if (csvSyncInFlight) return
-        csvSyncInFlight = true
-        webView.loadUrl(POINT_LOGS_AUTO_URL)
-        // Safety reset if download never arrives
-        syncHandler.postDelayed({ csvSyncInFlight = false }, 120_000L)
+        // no-op: auto CSV sync disabled (manual download on point_logs only)
     }
 
     private fun markCsvSynced() {
@@ -474,7 +470,16 @@ class MainActivity : AppCompatActivity() {
 
         @JavascriptInterface
         fun startGiftWalletCsvSync() {
-            runOnUiThread { startCsvSync() }
+            // no-op stub — do not navigate to #gw-auto-csv / auto modal
+        }
+
+        @JavascriptInterface
+        fun openCushinQuick() {
+            runOnUiThread {
+                csvSyncInFlight = false
+                pendingCsvText = null
+                webView.loadUrl(CUSHIN_QUICK_URL)
+            }
         }
 
         @JavascriptInterface
@@ -557,6 +562,8 @@ class MainActivity : AppCompatActivity() {
         private const val HOME_URL_NOSPLASH = "https://gift-wallet.pages.dev/?nosplash=1"
         private const val POINT_LOGS_AUTO_URL =
             "https://wallet.vaton.jp/point/point_logs#gw-auto-csv"
+        private const val CUSHIN_QUICK_URL =
+            "https://cushintools.net/dashboard/quick-withdraw#auto-new-session"
         private const val FIXED_CSV_NAME = "ポイント履歴_今月.csv"
 
         private val HELPER_JS_BASE = """
@@ -768,11 +775,21 @@ class MainActivity : AppCompatActivity() {
 
               function findLatestQrImg(){
                 var imgs = Array.prototype.slice.call(
-                  document.querySelectorAll('.qr-session-card .qr-image img, .qr-image img[alt="QR"], img[alt="QR"]')
+                  document.querySelectorAll('.qr-session-card .qr-image img, .qr-image img[alt="QR"], img[alt="QR"], img[src*="qr"], canvas')
                 );
                 for (var i = imgs.length - 1; i >= 0; i--) {
-                  if (imgs[i] && imgs[i].src && imgs[i].src.indexOf('data:') === 0 || (imgs[i].naturalWidth || 1) > 0) {
-                    if (imgs[i].src) return imgs[i];
+                  var el = imgs[i];
+                  if (!el) continue;
+                  if (el.tagName === 'CANVAS') {
+                    try {
+                      if ((el.width || 0) < 40 || (el.height || 0) < 40) continue;
+                      var dataUrl = el.toDataURL('image/png');
+                      if (dataUrl && dataUrl.length > 200) return { src: dataUrl };
+                    } catch (e0) {}
+                    continue;
+                  }
+                  if (el.src && (el.src.indexOf('data:') === 0 || (el.naturalWidth || 0) > 0)) {
+                    return el;
                   }
                 }
                 return null;
@@ -879,25 +896,42 @@ class MainActivity : AppCompatActivity() {
                   }
                 } catch (e) {}
               }
+              function wireCushin(a){
+                try {
+                  if (!a || a.getAttribute('data-gw-cushin-bound') === '1') return;
+                  a.setAttribute('data-gw-cushin', '1');
+                  a.setAttribute('data-gw-cushin-bound', '1');
+                  a.setAttribute('target', '_self');
+                  a.addEventListener('click', function(ev){
+                    try {
+                      if (window.GiftWallet && window.GiftWallet.openCushinQuick) {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        window.GiftWallet.openCushinQuick();
+                      }
+                    } catch (e) {}
+                  }, true);
+                } catch (e) {}
+              }
               function rewrite(){
                 try {
+                  // Cushin / クイック引出 — never rewrite to vaton / CSV
+                  var cushin = document.querySelectorAll(
+                    'a[data-gw-cushin="1"], a[href*="cushintools.net"][href*="quick-withdraw"]'
+                  );
+                  for (var c = 0; c < cushin.length; c++) wireCushin(cushin[c]);
+
                   var links = document.querySelectorAll('a[href*="wallet.vaton.jp/point/point_logs"]');
                   for (var i = 0; i < links.length; i++) {
                     var a = links[i];
-                    // Guard: rewrite + bind click only once per element (avoids MO/attr loop freeze)
+                    if (a.getAttribute('data-gw-cushin') === '1') continue;
+                    // Guard: rewrite only once per element
                     if (a.getAttribute('data-gw-csv') === '1') continue;
                     a.setAttribute('data-gw-csv', '1');
                     a.setAttribute('target', '_self');
                     a.removeAttribute('rel');
-                    a.setAttribute('href', 'https://wallet.vaton.jp/point/point_logs#gw-auto-csv');
-                    a.addEventListener('click', function(ev){
-                      try {
-                        if (window.GiftWallet && window.GiftWallet.startGiftWalletCsvSync) {
-                          ev.preventDefault();
-                          window.GiftWallet.startGiftWalletCsvSync();
-                        }
-                      } catch (e) {}
-                    }, true);
+                    // Open history page only — no #gw-auto-csv, no preventDefault auto sync
+                    a.setAttribute('href', 'https://wallet.vaton.jp/point/point_logs');
                   }
                 } catch (e) {}
                 pushBalance();
@@ -1191,66 +1225,9 @@ private val VATON_CSV_JS = """
               }
 
               function autoCsv(){
-                if (!location.hash || location.hash.indexOf('gw-auto-csv') < 0) return;
-                if (window.__gwAutoCsvStarted) return;
-                window.__gwAutoCsvStarted = true;
-                window.__gwCsvCaptured = false;
-                var tries = 0;
-                function tick(){
-                  if (window.__gwCsvCaptured) return;
-                  if (!location.hash || location.hash.indexOf('gw-auto-csv') < 0) {
-                    window.__gwAutoCsvStarted = false;
-                    return;
-                  }
-                  tries++;
-                  try {
-                    if (looksLoggedOut()) {
-                      if (tries >= 10) {
-                        notifyLogin();
-                        clearAutoHash();
-                        window.__gwAutoCsvStarted = false;
-                        return;
-                      }
-                      setTimeout(tick, 700);
-                      return;
-                    }
-
-                    // If modal already open, skip re-open and poll download
-                    if (isModalOpen()) {
-                      pollDownload(Date.now() + 18000);
-                      return;
-                    }
-
-                    var openBtn = findBtn('利用実績CSVダウンロード');
-                    if (!openBtn) {
-                      if (tries >= 30) {
-                        notifyLogin();
-                        clearAutoHash();
-                        window.__gwAutoCsvStarted = false;
-                        return;
-                      }
-                      if (clickHistoryTab()) {
-                        setTimeout(tick, 450);
-                        return;
-                      }
-                      setTimeout(tick, 500);
-                      return;
-                    }
-                    fireClick(openBtn);
-                    // After opening modal, poll for download button (~18s)
-                    setTimeout(function(){
-                      pollDownload(Date.now() + 18000);
-                    }, 400);
-                  } catch (e) {
-                    if (tries < 30) setTimeout(tick, 500);
-                    else {
-                      clearAutoHash();
-                      window.__gwAutoCsvStarted = false;
-                      notifyFail('CSVの自動取得に失敗しました');
-                    }
-                  }
-                }
-                setTimeout(tick, 400);
+                // Disabled: never auto-open CSV modal / never poll-click ダウンロードする.
+                // Manual tap of 「ダウンロードする」 still imports via click/blob capture + DownloadListener.
+                return;
               }
 
               injectBackBtn();
@@ -1261,9 +1238,7 @@ private val VATON_CSV_JS = """
                 mo.observe(document.documentElement, { childList:true, subtree:true });
               } catch (e) {}
 
-              autoCsv();
-              setTimeout(autoCsv, 1200);
-              setTimeout(autoCsv, 3000);
+              // Do not call autoCsv — landing on point_logs must not open download modal
             })();
         """.trimIndent()
 
