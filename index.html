@@ -42,7 +42,7 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;-webkit-tap-highlight-color:transparent;}
 body{font-family:"DotGothic16",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;}
-.page{display:none;min-height:100vh;padding-bottom:calc(168px + env(safe-area-inset-bottom));}
+.page{display:none;min-height:100vh;padding-bottom:calc(148px + env(safe-area-inset-bottom));}
 .page.active{display:block;}
 #page-calendar.page.active{display:flex;flex-direction:column;}
 #calSectionRoot{flex:1;display:flex;flex-direction:column;min-height:0;}
@@ -110,7 +110,7 @@ body{font-family:"DotGothic16",sans-serif;background:var(--bg);color:var(--text)
 .f-bal-block{display:flex;flex-direction:column;min-width:0;}
 .f-bal-label{font-size:10px;font-weight:800;color:var(--gray);letter-spacing:.12em;font-family:'DM Mono',monospace;margin-bottom:3px;}
 .f-bal-value-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.cal-section-tabs{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 10px 10px;margin:0;overflow-x:auto;-webkit-overflow-scrolling:touch;position:sticky;bottom:calc(88px + env(safe-area-inset-bottom));z-index:180;background:var(--bg);border-top:1px solid var(--border);}
+.cal-section-tabs{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));margin:0;overflow-x:auto;-webkit-overflow-scrolling:touch;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(90px + env(safe-area-inset-bottom));width:100%;max-width:480px;z-index:350;background:var(--navy2);border-top:1px solid var(--border);box-shadow:0 -6px 18px rgba(0,0,0,.35);}
 .cal-section-tab{appearance:none;border:1px solid var(--border);background:var(--gray5);color:var(--text2);border-radius:999px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.04em;white-space:nowrap;flex-shrink:0;}
 .cal-section-tab.active{background:rgba(212,168,67,.18);border-color:rgba(212,168,67,.45);color:var(--gold);}
 .cal-section-tab:active{transform:scale(.97);}
