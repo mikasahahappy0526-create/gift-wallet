@@ -6,6 +6,27 @@
 <link rel="icon" href="./favicon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<style id="gw-maintenance-style">
+  html.gw-maintenance-mode, html.gw-maintenance-mode body { background:#080810 !important; }
+  html.gw-maintenance-mode body > *:not(#gw-maintenance-screen) { display:none !important; }
+  #gw-maintenance-screen {
+    position:fixed; inset:0; z-index:2147483647; display:flex; align-items:center; justify-content:center;
+    padding:28px; background:radial-gradient(circle at 50% 30%, #252039 0%, #0b0b14 55%, #050509 100%);
+    color:#fff; font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif; text-align:center;
+  }
+  #gw-maintenance-screen .gw-maintenance-card { max-width:360px; padding:34px 24px; border:1px solid rgba(212,168,67,.35); border-radius:22px; background:rgba(20,18,32,.92); box-shadow:0 18px 60px rgba(0,0,0,.45); }
+  #gw-maintenance-screen .gw-maintenance-mark { font-size:48px; line-height:1; margin-bottom:18px; }
+  #gw-maintenance-screen h1 { margin:0 0 14px; font-size:23px; letter-spacing:.08em; }
+  #gw-maintenance-screen p { margin:0; color:#c8c4d0; font-size:14px; line-height:1.9; }
+</style>
+<script>
+(function(){
+  // Android WebView exposes GiftWallet before loading this page. PC/iPhone browsers do not.
+  if (window.GiftWallet) return;
+  document.documentElement.classList.add('gw-maintenance-mode');
+  document.write('<div id="gw-maintenance-screen"><div class="gw-maintenance-card"><div class="gw-maintenance-mark">🛠️</div><h1>メンテナンス中</h1><p>現在、ギフトウォレットをメンテナンスしています。<br>再開時はお知らせします。</p></div></div>');
+})();
+</script>
 <title>えらべるPay 収支表</title>
 <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#c9933a">
