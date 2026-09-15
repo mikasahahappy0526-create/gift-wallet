@@ -239,7 +239,7 @@ body{
 <div class="hero">
   <div class="hero-label">USAGE GUIDE</div>
   <div class="hero-title">えらべるPay<br><span>収支表</span>の使い方</div>
-  <div class="hero-desc">えらべるPayのCSVデータを読み込んで、収支をカレンダーで可視化・分析するアプリです。</div>
+  <div class="hero-desc">下部のギフトからCSVを取り込み、カレンダーで収支を見ます。タブはカレンダーの下です。</div>
 </div>
 
 <!-- 目次 -->
@@ -247,11 +247,11 @@ body{
   <div class="toc-title">CONTENTS</div>
   <a class="toc-item" href="#sec1"><span class="toc-num">01</span>基本の流れ（クイックスタート）</a>
   <a class="toc-item" href="#sec2"><span class="toc-num">02</span>下部メニューの使い方</a>
-  <a class="toc-item" href="#sec3"><span class="toc-num">03</span>CSVデータの読み込み方</a>
+  <a class="toc-item" href="#sec3"><span class="toc-num">03</span>CSVデータの取り込み</a>
   <a class="toc-item" href="#sec4"><span class="toc-num">04</span>カレンダー画面の見方</a>
-  <a class="toc-item" href="#sec5"><span class="toc-num">05</span>データ保存・出力</a>
+  <a class="toc-item" href="#sec5"><span class="toc-num">05</span>データ保存</a>
   <a class="toc-item" href="#sec6"><span class="toc-num">06</span>AIアシスタント・TikTok質問</a>
-  <a class="toc-item" href="#sec7"><span class="toc-num">07</span>ウォレット・QR読取</a>
+  <a class="toc-item" href="#sec7"><span class="toc-num">07</span>クイック引出とエラーID</a>
   <a class="toc-item" href="#sec8"><span class="toc-num">08</span>よくある質問</a>
 </div>
 
@@ -267,29 +267,29 @@ body{
       <div class="step">
         <div class="step-num">1</div>
         <div class="step-content">
-          <div class="step-label">ギフトウォレットからCSVをダウンロード</div>
-          <div class="step-desc">ギフトウォレット（えらべるPay）のマイページから、ポイント履歴のCSVファイルをダウンロードします。PayPayのCSVにも対応しています。カレンダー画面下部の「🎁ギフト」ボタンからマイページに直接ジャンプできます。</div>
+          <div class="step-label">下部の🎁ギフトをタップ</div>
+          <div class="step-desc">下部メニュー右寄りの「ギフト」ボタンからギフトウォレット（えらべるPay）のポイント履歴を開きます。アプリでは戻るボタンで収支表に戻れます。</div>
         </div>
       </div>
       <div class="step">
         <div class="step-num">2</div>
         <div class="step-content">
-          <div class="step-label">📂 CSV読込ボタンをタップ</div>
-          <div class="step-desc">カレンダー画面下部の「読込」ボタン、またはカード内の「CSV読込」ボタンをタップしてCSVファイルを選択します。</div>
+          <div class="step-label">ポイント履歴からCSVをダウンロード</div>
+          <div class="step-desc">「ポイント履歴」タブで今月のCSVをダウンロードします。同じ月は1ファイルとして上書き保存され、カレンダーに自動反映されます。</div>
         </div>
       </div>
       <div class="step">
         <div class="step-num">3</div>
         <div class="step-content">
-          <div class="step-label">データを読み込む</div>
-          <div class="step-desc">ファイル選択後、「全データ読込」または月ごとの「読込」ボタンを押すとカレンダーに反映されます。</div>
+          <div class="step-label">カレンダーで確認</div>
+          <div class="step-desc">ホームに戻ると、上部に月間合計とギフト残高が大きく表示されます。カレンダーの下にあるタブで月末予測・月別集計・売上合計に切り替えられます。</div>
         </div>
       </div>
       <div class="step">
         <div class="step-num">4</div>
         <div class="step-content">
-          <div class="step-label">💾 自動で保存される</div>
-          <div class="step-desc">CSVを読み込むと自動的に端末へ保存され、次回起動時にも読み込まれます。同じ月を読み込み直すと自動的に最新データで上書きされます（手動での保存操作は不要です）。</div>
+          <div class="step-label">保存は自動</div>
+          <div class="step-desc">CSVを取り込むと端末に自動保存されます。同じ月を取り込み直すと最新データで上書きされます。</div>
         </div>
       </div>
     </div>
@@ -306,47 +306,45 @@ body{
     <span class="section-title">下部メニューの使い方</span>
   </div>
 
-  <div class="hint"><strong>ヒント：</strong>横棒をタップまたは上にスワイプすると、追加メニューが展開されます。</div>
+  <div class="hint"><strong>ヒント：</strong>横棒をタップ、または上にスワイプすると、分析グラフ・支出内訳・使い方などが展開されます。</div>
 
   <div class="btn-list" style="margin-top:12px;">
     <div class="btn-item">
       <div class="btn-icon">🏠</div>
       <div class="btn-info">
         <div class="btn-name">ホーム</div>
-        <div class="btn-desc">カレンダー画面に戻ります。どのページからでもタップするとメインに戻れます。</div>
+        <div class="btn-desc">カレンダー画面に戻ります。どのページからでもメインに戻れます。</div>
       </div>
     </div>
     <div class="btn-item">
-      <div class="btn-icon">💴</div>
+      <div class="btn-icon">⚠️</div>
       <div class="btn-info">
-        <div class="btn-name">100円抜き</div>
-        <div class="btn-desc">毎日の100円積立をシミュレーションするページです。習慣化のサポートに使えます。</div>
+        <div class="btn-name">エラーID</div>
+        <div class="btn-desc">引出でエラーになったUSERIDの一覧です。横にパスワードを入れて、同じパスワードなら一発コピーできます。</div>
       </div>
     </div>
     <div class="btn-item">
-      <div class="btn-icon">📷</div>
+      <div class="btn-icon">⚡</div>
       <div class="btn-info">
-        <div class="btn-name">QR読取（中央ボタン）</div>
-        <div class="btn-desc">カメラを起動してQRコードを読み取ります。URLは自動でリンクになり、そのままブラウザで開けます。</div>
+        <div class="btn-name">クイック引出（中央ボタン）</div>
+        <div class="btn-desc">Cushinのクイック引き出しを開きます。アプリでは「+ 新しいセッション」が自動で押され、QRが大きく表示されます。ギフトウォレットのダウンロード画面には飛びません。</div>
       </div>
     </div>
     <div class="btn-item">
-      <div class="btn-icon">💳</div>
+      <div class="btn-icon">🎁</div>
       <div class="btn-info">
-        <div class="btn-name">ウォレット</div>
-        <div class="btn-desc">各QRコード決済アプリ（PayPay・au PAY・楽天ペイ・majica・Kyash）に直接ジャンプできます。アプリがインストール済みの場合は自動で起動し、未インストールの場合はストアへ案内します。</div>
+        <div class="btn-name">ギフト</div>
+        <div class="btn-desc">ギフトウォレットのポイント履歴を開きます。CSVの取り込みはここから行います。</div>
       </div>
     </div>
     <div class="btn-item">
       <div class="btn-icon">📓</div>
       <div class="btn-info">
         <div class="btn-name">TikTok LM（下部）／ 🤖収支AI（ヘッダー）</div>
-        <div class="btn-desc">下部メニューの <strong>📓TikTok LM</strong> ボタンをタップするとNotebookLMが直接別タブで開きます。収支AIはカレンダーページのヘッダー右側 <strong>🤖収支AI</strong> ボタンから1タップで開けます。</div>
+        <div class="btn-desc">下部の <strong>📓TikTok LM</strong> でNotebookLMが別タブで開きます。収支AIはカレンダー画面ヘッダー右側の <strong>🤖収支AI</strong> から開けます。</div>
       </div>
     </div>
   </div>
-
-  <div class="hint" style="margin-top:12px;"><strong>展開メニュー（横棒を上にスワイプ）：</strong>分析グラフ・アップデート情報・APN設定が表示されます。</div>
 </div>
 
 <div class="divider"></div>
@@ -356,24 +354,23 @@ body{
   <span class="section-anchor" id="sec3"></span>
   <div class="section-head">
     <span class="section-num">03</span>
-    <span class="section-title">CSVデータの読み込み方</span>
+    <span class="section-title">CSVデータの取り込み</span>
   </div>
   <div class="card">
-    <div class="card-title">📂 対応CSVフォーマット</div>
+    <div class="card-title">🎁 ギフトボタンから取り込む</div>
+    <div class="card-body">
+      カレンダー上部の「読込」「ギフト」などの5つのボタンは廃止しました。取り込みは下部メニューの <strong>🎁ギフト</strong> からポイント履歴を開き、CSVをダウンロードしてください。読み込んだファイル名や種類（えらべるPay / PayPay など）は画面には出しません。
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📂 対応CSV</div>
     <div class="card-body">
       <span class="badge">えらべるPay</span>
       <span class="badge">ギフトウォレット</span>
       <span class="badge">PayPay</span>
-      <br>の3種類のCSVに対応しています。複数ファイルを同時に選択して一括読み込みも可能です。
+      <br>同じ月は常に1ファイルとして上書きされます。
     </div>
   </div>
-  <div class="card">
-    <div class="card-title">💾 保存済みデータからの読み込み</div>
-    <div class="card-body">
-      CSVモーダル内の「保存済みデータ」セクションから、過去に保存した月のデータを選んで読み込めます。<br>「全データ読込」を使うと保存された全月のデータをまとめて表示できます。
-    </div>
-  </div>
-  <div class="hint"><strong>サンプルデータ：</strong>「サンプル」ボタンで動作を確認できます。</div>
 </div>
 
 <div class="divider"></div>
@@ -386,28 +383,29 @@ body{
     <span class="section-title">カレンダー画面の見方</span>
   </div>
   <div class="card">
-    <div class="card-title">📊 上部ステータスバー</div>
+    <div class="card-title">💴 上部の金額</div>
     <div class="card-body">
-      <strong>売上合計</strong>：全期間の合計金額<br>
-      <strong>月平均</strong>：月ごとの平均金額<br>
-      <strong>最高月</strong>：最も稼いだ月<br>
-      <strong>期間</strong>：データの期間
+      <strong>月間合計</strong>：表示中の月の合計<br>
+      <strong>ギフト残高</strong>：ログイン中のギフトウォレット残高（👁で表示オンオフ）<br>
+      「高額出金」の回数をタップすると基準額を変えられます。
     </div>
   </div>
   <div class="card">
-    <div class="card-title">🎖️ 称号バナー</div>
-    <div class="card-body">当月の実績に応じて称号が付与されます。チャージ王・コツコツ職人など、稼ぎっぷりに応じて変化します。</div>
-  </div>
-  <div class="card">
-    <div class="card-title">📅 カレンダーセル</div>
+    <div class="card-title">📅 カレンダーとタブ</div>
     <div class="card-body">
-      日付セルをタップすると、その日の詳細（金額・メモ）が確認でき、メモの追加・編集もできます。<br>
-      <strong>🥇🥈🥉</strong> のメダルは高額出金の日に表示されます。
+      開くとカレンダー全体が見えます。タブはカレンダーの下にあります。<br>
+      <span class="badge">カレンダー</span>
+      <span class="badge">月末予測</span>
+      <span class="badge">月別集計</span>
+      <span class="badge">売上合計</span>
+      <br>日付セルをタップするとその日の明細とメモが確認できます。🥇🥈🥉 は高額出金の日です。
     </div>
   </div>
   <div class="card">
-    <div class="card-title">📈 月末予測</div>
-    <div class="card-body">月の途中でも、現在のペースから月末の合計金額を予測して表示します。</div>
+    <div class="card-title">📈 月末予測・月別集計・売上合計</div>
+    <div class="card-body">
+      月末予測は今のペースから月末合計を見積もります。月別集計は月ごとの回数と合計、売上合計は全期間の合計・月平均・最高月・期間です。称号バナーは廃止しています。
+    </div>
   </div>
 </div>
 
@@ -418,25 +416,13 @@ body{
   <span class="section-anchor" id="sec5"></span>
   <div class="section-head">
     <span class="section-num">05</span>
-    <span class="section-title">データ保存・出力</span>
+    <span class="section-title">データ保存</span>
   </div>
-  <div class="btn-list">
-    <div class="btn-item">
-      <div class="btn-icon">💾</div>
-      <div class="btn-info">
-        <div class="btn-name">データ保存</div>
-        <div class="btn-desc">現在表示中の月のデータを端末に保存します。次回起動時に自動で読み込まれます。複数月のデータをそれぞれ保存しておくと便利です。</div>
-      </div>
-    </div>
-    <div class="btn-item">
-      <div class="btn-icon">📊</div>
-      <div class="btn-info">
-        <div class="btn-name">CSV出力</div>
-        <div class="btn-desc">現在表示中の月の集計データをCSV形式でダウンロードします。Excelやスプレッドシートで開けます。</div>
-      </div>
-    </div>
+  <div class="card">
+    <div class="card-title">💾 自動保存</div>
+    <div class="card-body">CSVを取り込むと端末へ自動保存されます。同じ月を取り込み直すと最新で上書きされます。手動の保存・出力ボタンはカレンダーからは外しています。</div>
   </div>
-  <div class="hint"><strong>注意：</strong>ブラウザのキャッシュをクリアすると保存データが消える場合があります。定期的にCSV出力でバックアップを取ることをおすすめします。</div>
+  <div class="hint"><strong>注意：</strong>ブラウザのキャッシュを消すと保存データも消えることがあります。</div>
 </div>
 
 <div class="divider"></div>
@@ -451,17 +437,15 @@ body{
   <div class="card">
     <div class="card-title">🤖 収支AIアシスタント</div>
     <div class="card-body">
-      読み込んだ収支データを元に、AIが直接分析・アドバイスをします。専用のCloudflare Worker経由でAIサーバーに接続して動作します（APIキーはサーバー側で管理し、ブラウザには露出しません）。<br>
-      「先月と比べてどう？」「高額出金が多い日は？」などの自然な質問に答えてくれます。<br>
-      <span class="badge">クイック質問</span>からよく使う質問を選んで送ることもできます。<br><br>
-      <strong>開き方：</strong>カレンダーページのヘッダー右側 <strong>🤖収支AI</strong> ボタン
+      読み込んだ収支データをもとに質問できます。「先月と比べてどう？」などの自然な質問に答えます。<br>
+      <strong>開き方：</strong>カレンダー画面ヘッダー右側の <strong>🤖収支AI</strong>
     </div>
   </div>
   <div class="card">
     <div class="card-title">📓 TikTok Lite質問（NotebookLM）</div>
     <div class="card-body">
-      TikTok Liteのポイ活に関する情報をNotebookLMで質問できます。タップすると直接別タブで開きます。モーダルや中間画面はありません。<br><br>
-      <strong>開き方：</strong>下部メニューの <strong>📓TikTok LM</strong> ボタン
+      TikTok Liteのポイ活をNotebookLMで質問できます。タップすると別タブで開きます。<br>
+      <strong>開き方：</strong>下部メニューの <strong>📓TikTok LM</strong>
     </div>
   </div>
 </div>
@@ -473,27 +457,18 @@ body{
   <span class="section-anchor" id="sec7"></span>
   <div class="section-head">
     <span class="section-num">07</span>
-    <span class="section-title">ウォレット・QR読取</span>
+    <span class="section-title">クイック引出とエラーID</span>
   </div>
   <div class="card">
-    <div class="card-title">💳 ウォレット — 対応アプリ</div>
+    <div class="card-title">⚡ クイック引出</div>
     <div class="card-body">
-      <span class="badge">PayPay</span>
-      <span class="badge">au PAY</span>
-      <span class="badge">楽天ペイ</span>
-      <span class="badge">majica</span>
-      <span class="badge">Kyash</span>
-      <br><br>ボタンをタップするとアプリが起動します。インストールされていない場合は自動でApp Store / Google Playへ移動します。
+      下部中央のボタンでCushinのクイック引き出しを開きます。Androidアプリでは新しいセッションのQRが大きく出ます。ギフトウォレットのCSV画面には行きません。戻るボタンで収支表に戻れます。
     </div>
   </div>
   <div class="card">
-    <div class="card-title">📷 QRコードリーダー</div>
+    <div class="card-title">⚠️ エラーID</div>
     <div class="card-body">
-      カメラでQRコードをスキャンします。<br>
-      • 読み取り成功でバイブレーションが鳴ります<br>
-      • URLの場合は「URLを開く」ボタンが表示されます<br>
-      • 「コピー」ボタンでテキストをコピーできます<br>
-      <br>初回起動時にカメラの許可が必要です。
+      エラーになったUSERIDを一覧表示します。パスワード欄と、同じパスワードを一括で入れるボタン、一発コピーがあります。
     </div>
   </div>
 </div>
@@ -508,34 +483,33 @@ body{
     <span class="section-title">よくある質問</span>
   </div>
   <div class="card" style="margin-bottom:10px;">
+    <div class="card-title">Q. 読込ボタンが無い</div>
+    <div class="card-body">上部の読込・ギフト・支出・出力・ヘルプの5ボタンは廃止しました。取り込みは下部の <strong>🎁ギフト</strong>、ヘルプは下部メニューを上にスワイプした「使い方」から開けます。</div>
+  </div>
+  <div class="card" style="margin-bottom:10px;">
+    <div class="card-title">Q. ウォレットボタンが無い</div>
+    <div class="card-body">下部のウォレットは廃止し、同じ位置に <strong>🎁ギフト</strong> を置いています。ポイント履歴はそこから開きます。</div>
+  </div>
+  <div class="card" style="margin-bottom:10px;">
     <div class="card-title">Q. データが消えてしまった</div>
-    <div class="card-body">ブラウザのストレージ（localStorage）に保存しています。ブラウザのキャッシュ・サイトデータをクリアすると消える場合があります。定期的にCSV出力でバックアップを取ってください。</div>
+    <div class="card-body">端末のストレージに保存しています。ブラウザやアプリのサイトデータを消すと消えることがあります。</div>
   </div>
   <div class="card" style="margin-bottom:10px;">
-    <div class="card-title">Q. 収支AIが動かない・エラーが出る</div>
-    <div class="card-body">収支AIは専用のCloudflare Worker経由でAIサーバーに接続して動作します。エラーが出る場合はネットワーク接続をご確認ください。1日あたりの利用回数に上限があるため、上限に達した場合は翌日以降にお試しください。<br>TikTok LMは下部メニューの <strong>📓TikTok LM</strong> ボタンから開けます。</div>
-  </div>
-  <div class="card" style="margin-bottom:10px;">
-    <div class="card-title">Q. CSVが読み込めない</div>
-    <div class="card-body">えらべるPay・ギフトウォレット・PayPayの公式CSVに対応しています。他のフォーマットには対応していません。ファイルの文字コードはUTF-8またはShift-JISに対応しています。</div>
-  </div>
-  <div class="card" style="margin-bottom:10px;">
-    <div class="card-title">Q. ウォレットのボタンが反応しない</div>
-    <div class="card-body">現在 PayPay・au PAY・楽天ペイ・majica・Kyash の5アプリに対応しています。アプリがインストールされていない場合は自動でストアページへ移動します。ブラウザによってはポップアップブロックが働く場合があります。</div>
+    <div class="card-title">Q. クイック引出を押すとダウンロード画面になる</div>
+    <div class="card-body">最新版ではクイック引出はCushinだけを開きます。ギフトウォレットへは下部の🎁ギフトから行ってください。</div>
   </div>
   <div class="card">
     <div class="card-title">Q. ホーム画面に追加できる？</div>
     <div class="card-body">
-      <strong>iOS（Safari）：</strong>共有ボタン → 「ホーム画面に追加」<br>
-      <strong>Android（Chrome）：</strong>メニュー → 「ホーム画面に追加」<br>
-      アイコンからアプリのように起動できます。
+      Androidアプリ（APK）が一番安定します。<br>
+      ブラウザの場合は「ホーム画面に追加」でも使えます。
     </div>
   </div>
 </div>
 
 <!-- フッター -->
 <div class="footer">
-  えらべるPay 収支表<span>·</span>USAGE GUIDE<span>·</span>v2025
+  えらべるPay 収支表<span>·</span>USAGE GUIDE<span>·</span>v2026
 </div>
 
 </body>

@@ -55,8 +55,8 @@ body{font-family:"DotGothic16",sans-serif;background:var(--bg);color:var(--text)
 /* ===== STATS ROW ===== */
 .stats-row{background:var(--navy2);border-bottom:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);padding:12px 6px;}
 .ss{text-align:center;}
-.ss-label{font-size:8px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
-.ss-val{font-family:"DM Mono",monospace;font-size:12px;font-weight:700;color:var(--text);}
+.ss-label{font-size:11px;font-weight:800;color:var(--gray);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.ss-val{font-family:"DM Mono",monospace;font-size:20px;font-weight:800;color:var(--text);}
 .ss-val.green{color:var(--gold);}
 
 /* ===== MONTH NAV ===== */
@@ -96,18 +96,18 @@ body{font-family:"DotGothic16",sans-serif;background:var(--bg);color:var(--text)
 /* ===== フッターカード（月合計エリア） ===== */
 .cal-footer{padding:10px 10px 0;}
 .footer-card{background:var(--navy2);border-radius:var(--r);box-shadow:var(--sh2);padding:16px;display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);}
-.f-total-val{font-size:clamp(32px,9vw,48px);font-weight:900;color:var(--gold);font-family:"DM Mono",monospace;letter-spacing:-2px;line-height:1;text-shadow:0 0 30px rgba(212,168,67,.4);}
-.f-total-sub{font-size:11px;color:var(--gray);margin-top:4px;letter-spacing:.04em;}
-.f-total-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;max-width:100%;}
-.f-total-bal{font-size:clamp(22px,6vw,36px);font-weight:900;color:var(--gold);font-family:"DM Mono",monospace;letter-spacing:-1px;line-height:1;text-shadow:0 0 24px rgba(212,168,67,.35);}
-.f-total-slash{color:var(--gray);font-size:clamp(18px,5vw,28px);font-weight:700;font-family:"DM Mono",monospace;letter-spacing:0;line-height:1;}
-#gwHideBalanceBtn{appearance:none;border:1px solid rgba(212,168,67,.35);background:rgba(212,168,67,.1);color:var(--gold);border-radius:999px;width:34px;height:34px;padding:0;font-size:16px;line-height:1;cursor:pointer;flex-shrink:0;align-self:center;display:inline-flex;align-items:center;justify-content:center;}
+.f-total-val{font-size:clamp(40px,11vw,58px);font-weight:900;color:var(--gold);font-family:"DM Mono",monospace;letter-spacing:-2px;line-height:1;text-shadow:0 0 30px rgba(212,168,67,.4);}
+.f-total-sub{font-size:13px;color:var(--gray);margin-top:8px;letter-spacing:.04em;}
+.f-total-row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;max-width:100%;}
+.f-total-bal{font-size:clamp(32px,9vw,48px);font-weight:900;color:var(--gold);font-family:"DM Mono",monospace;letter-spacing:-1px;line-height:1;text-shadow:0 0 24px rgba(212,168,67,.35);}
+.f-total-slash{color:var(--gray);font-size:clamp(24px,7vw,36px);font-weight:700;font-family:"DM Mono",monospace;letter-spacing:0;line-height:1;}
+#gwHideBalanceBtn{appearance:none;border:1px solid rgba(212,168,67,.35);background:rgba(212,168,67,.1);color:var(--gold);border-radius:999px;width:38px;height:38px;padding:0;font-size:18px;line-height:1;cursor:pointer;flex-shrink:0;align-self:center;display:inline-flex;align-items:center;justify-content:center;}
 #gwHideBalanceBtn:active{transform:scale(.94);}
 .f-bal-block{display:flex;flex-direction:column;min-width:0;}
-.f-bal-label{font-size:9px;font-weight:700;color:var(--gray);letter-spacing:.12em;font-family:'DM Mono',monospace;margin-bottom:4px;}
-.f-bal-value-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-.cal-section-tabs{display:flex;align-items:center;gap:6px;padding:8px 12px 0;overflow-x:auto;-webkit-overflow-scrolling:touch;}
-.cal-section-tab{appearance:none;border:1px solid var(--border);background:var(--gray5);color:var(--text2);border-radius:999px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.04em;white-space:nowrap;flex-shrink:0;}
+.f-bal-label{font-size:12px;font-weight:800;color:var(--gray);letter-spacing:.14em;font-family:'DM Mono',monospace;margin-bottom:6px;}
+.f-bal-value-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.cal-section-tabs{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 12px 6px;margin:8px 10px 0;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.cal-section-tab{appearance:none;border:1px solid var(--border);background:var(--gray5);color:var(--text2);border-radius:999px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.04em;white-space:nowrap;flex-shrink:0;}
 .cal-section-tab.active{background:rgba(212,168,67,.18);border-color:rgba(212,168,67,.45);color:var(--gold);}
 .cal-section-tab:active{transform:scale(.97);}
 #calPanelForecast,#calPanelMtable,#calPanelSales{display:none;}
@@ -159,7 +159,7 @@ body{font-family:"DotGothic16",sans-serif;background:var(--bg);color:var(--text)
 .cal-cell.today .day-num{background:var(--gold);color:#000;font-weight:900;box-shadow:0 0 14px rgba(212,168,67,.6);}
 .cal-cell.sun .day-num{color:var(--red);}
 .cal-cell.sat .day-num{color:var(--blue);}
-.day-amt{font-size:10px;font-weight:700;color:var(--gold);text-align:center;line-height:1.3;padding:0 1px;white-space:pre-line;text-shadow:0 0 8px rgba(212,168,67,.3);font-family:"DM Mono",monospace;}
+.day-amt{font-size:12px;font-weight:800;color:var(--gold);text-align:center;line-height:1.3;padding:0 1px;white-space:pre-line;text-shadow:0 0 8px rgba(212,168,67,.3);font-family:"DM Mono",monospace;}
 .day-amt.m1{color:#ffd700;text-shadow:0 0 10px rgba(255,215,0,.5);}
 .day-amt.m2{color:#c0c8d0;text-shadow:0 0 8px rgba(192,200,208,.3);}
 .day-amt.m3{color:#cd7f32;text-shadow:0 0 8px rgba(205,127,50,.3);}
@@ -168,7 +168,7 @@ body{font-family:"DotGothic16",sans-serif;background:var(--bg);color:var(--text)
 /* ===== 予測カード ===== */
 .forecast-card{background:var(--navy2);border:1px solid var(--border);border-radius:var(--r);margin:10px 0 4px;padding:16px;box-shadow:var(--sh);}
 .forecast-label{font-size:10px;font-weight:700;color:var(--gold);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;font-family:"DM Mono",monospace;}
-.forecast-val{font-size:24px;font-weight:900;font-family:"DM Mono",monospace;color:var(--text);letter-spacing:-1px;}
+.forecast-val{font-size:32px;font-weight:900;font-family:"DM Mono",monospace;color:var(--text);letter-spacing:-1px;}
 .forecast-sub{font-size:11px;color:var(--gray);margin-top:3px;line-height:1.7;}
 .forecast-bar-bg{position:relative;height:5px;background:var(--gray4);border-radius:99px;overflow:visible;margin-top:10px;}
 .forecast-bar-fill{position:absolute;top:0;left:0;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-h));border-radius:99px;transition:width .8s ease;box-shadow:0 0 8px rgba(212,168,67,.5);}
@@ -467,61 +467,27 @@ tr{cursor:pointer;}
   <!-- フッターカード -->
   <div style="padding:8px 10px 0;">
     <input type="file" id="calFileInput" accept=".csv,text/csv,text/plain,application/csv,application/vnd.ms-excel" multiple style="display:none;" onchange="handleCalFileSelect(event)">
-    <div class="footer-card" style="flex-direction:column;gap:0;padding:16px;">
-
-      <!-- 月合計 + コンパクトファイルリスト -->
-      <div style="display:flex;align-items:center;gap:12px;width:100%;margin-bottom:14px;">
-        <div style="flex:1;min-width:0;">
-          <div class="f-total-row" style="align-items:flex-end;">
-            <div class="f-bal-block">
-              <div class="f-bal-label">月間合計</div>
-              <div class="f-total-val" id="calMonthTotal">¥0</div>
-            </div>
-            <span class="f-total-slash" id="gwBalSlash" style="align-self:center;padding-bottom:4px;">/</span>
-            <div class="f-bal-block">
-              <div class="f-bal-label">ギフト残高</div>
-              <div class="f-bal-value-row">
-                <span class="f-total-bal" id="gwWalletBalance">—</span>
-                <button type="button" id="gwHideBalanceBtn" title="目隠し" aria-label="残高を隠す">👁</button>
-              </div>
-            </div>
-          </div>
-          <div class="f-total-sub" id="calMonthSub" onclick="openThresholdModal()" style="cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" data-hint="タップすると「高額出金」の基準額を自由に変更できます">高額出金 0回</div>
+    <div class="footer-card" style="flex-direction:column;gap:0;padding:18px 16px 16px;">
+      <div class="f-total-row" style="align-items:flex-end;width:100%;">
+        <div class="f-bal-block">
+          <div class="f-bal-label">月間合計</div>
+          <div class="f-total-val" id="calMonthTotal">¥0</div>
         </div>
-        <div id="compactFileList" style="display:none;flex-direction:column;gap:4px;max-width:48%;" data-hint="タップでファイルを選んで絞り込み集計できます"></div>
+        <span class="f-total-slash" id="gwBalSlash" style="align-self:center;padding-bottom:4px;">/</span>
+        <div class="f-bal-block">
+          <div class="f-bal-label">ギフト残高</div>
+          <div class="f-bal-value-row">
+            <span class="f-total-bal" id="gwWalletBalance">—</span>
+            <button type="button" id="gwHideBalanceBtn" title="目隠し" aria-label="残高を隠す">👁</button>
+          </div>
+        </div>
       </div>
-
-      <div style="height:1px;background:var(--border);width:100%;margin-bottom:12px;"></div>
-
-      <!-- ボタン行 -->
-      <div class="footer-btns">
-        <button onclick="document.getElementById('calFileInput').click()" class="f-btn f-btn-gold" data-hint="CSVファイルを読み込みます">
-          <span class="f-btn-icon">📂</span>読込
-        </button>
-        <a href="https://wallet.vaton.jp/point/point_logs" target="_self" class="f-btn f-btn-green" style="text-decoration:none;" data-hint="ポイント履歴を開き、手動でCSVダウンロードできます">
-          <span class="f-btn-icon">🎁</span>ギフト
-        </a>
-        <button onclick="goPage('expense')" class="f-btn f-btn-dark" data-hint="交換先ブランド別の支出内訳が見られます">
-          <span class="f-btn-icon">🧾</span>支出
-        </button>
-        <button onclick="exportCSV()" class="f-btn f-btn-blue" data-hint="今表示中の月の集計をCSVでダウンロードできます">
-          <span class="f-btn-icon">📤</span>出力
-        </button>
-        <a href="./guide.html" class="f-btn f-btn-dark" style="text-decoration:none;" data-hint="アプリの使い方ガイドが見られます">
-          <span class="f-btn-icon">❓</span>ヘルプ
-        </a>
-      </div>
+      <div class="f-total-sub" id="calMonthSub" onclick="openThresholdModal()" style="cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" data-hint="タップすると「高額出金」の基準額を自由に変更できます">高額出金 0回</div>
+      <div id="compactFileList" style="display:none;" aria-hidden="true"></div>
     </div>
   </div>
 
   <div id="calSectionRoot" data-tab="calendar">
-  <div class="cal-section-tabs" role="tablist" aria-label="カレンダーセクション">
-    <button type="button" class="cal-section-tab active" role="tab" data-cal-tab="calendar" aria-selected="true">カレンダー</button>
-    <button type="button" class="cal-section-tab" role="tab" data-cal-tab="forecast" aria-selected="false">月末予測</button>
-    <button type="button" class="cal-section-tab" role="tab" data-cal-tab="mtable" aria-selected="false">月別集計</button>
-    <button type="button" class="cal-section-tab" role="tab" data-cal-tab="sales" aria-selected="false">売上合計</button>
-  </div>
-
   <div id="calPanelCalendar">
   <div class="month-nav" id="monthNav">
     <button class="mnav-btn" id="prevBtn" onclick="changeMonth(-1)">‹</button>
@@ -575,8 +541,8 @@ tr{cursor:pointer;}
       <div class="stats-row sales-stats">
         <div class="ss"><div class="ss-label">売上合計</div><div class="ss-val green" id="totalPt">—</div></div>
         <div class="ss"><div class="ss-label">月平均</div><div class="ss-val" id="avgPt">—</div></div>
-        <div class="ss"><div class="ss-label">最高月</div><div class="ss-val" id="maxMonth" style="font-size:11px">—</div></div>
-        <div class="ss"><div class="ss-label">期間</div><div class="ss-val" id="periodVal" style="font-size:11px">—</div></div>
+        <div class="ss"><div class="ss-label">最高月</div><div class="ss-val" id="maxMonth" style="font-size:16px">—</div></div>
+        <div class="ss"><div class="ss-label">期間</div><div class="ss-val" id="periodVal" style="font-size:16px">—</div></div>
       </div>
       <div class="goal-bar-wrap" id="goalBarWrap" style="display:none;margin:10px 0 0;border:none;">
         <div class="goal-bar-inner">
@@ -591,6 +557,12 @@ tr{cursor:pointer;}
       </div>
     </div>
   </div><!-- /calPanelSales -->
+  <div class="cal-section-tabs" role="tablist" aria-label="カレンダーセクション">
+    <button type="button" class="cal-section-tab active" role="tab" data-cal-tab="calendar" aria-selected="true">カレンダー</button>
+    <button type="button" class="cal-section-tab" role="tab" data-cal-tab="forecast" aria-selected="false">月末予測</button>
+    <button type="button" class="cal-section-tab" role="tab" data-cal-tab="mtable" aria-selected="false">月別集計</button>
+    <button type="button" class="cal-section-tab" role="tab" data-cal-tab="sales" aria-selected="false">売上合計</button>
+  </div>
   </div><!-- /calSectionRoot -->
 
   <!-- 参照ファイルパネル -->
@@ -1102,6 +1074,8 @@ function directAggregate(){
 // ===== 参照ファイルパネル更新 =====
 function renderRefPanel(){
   const compact=document.getElementById('compactFileList');
+  if(compact){compact.style.display='none';compact.innerHTML='';}
+  return;
   const active=slotData.filter(s=>s);
 
   if(!compact)return;
@@ -2544,6 +2518,14 @@ function aiQuickSend(text){
             <span class="smenu-grid-icon">📊</span>
             <span class="smenu-grid-label">分析グラフ</span>
           </button>
+          <button class="smenu-grid-btn" onclick="goPage('expense');collapseSwipeMenu()">
+            <span class="smenu-grid-icon">🧾</span>
+            <span class="smenu-grid-label">支出内訳</span>
+          </button>
+          <button class="smenu-grid-btn" onclick="location.href='./guide.html';collapseSwipeMenu()">
+            <span class="smenu-grid-icon">❓</span>
+            <span class="smenu-grid-label">使い方</span>
+          </button>
           <button class="smenu-grid-btn" onclick="location.href='./update_notes.html';collapseSwipeMenu()">
             <span class="smenu-grid-icon">🆕</span>
             <span class="smenu-grid-label">大幅アップ<br>デート</span>
@@ -2572,11 +2554,11 @@ function aiQuickSend(text){
           <span style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--gold-h),var(--gold));display:flex;align-items:center;justify-content:center;box-shadow:0 3px 14px rgba(150,90,0,.3);margin-top:-18px;font-size:26px;line-height:1;">⚡</span>
           <span style="font-size:10px;font-weight:700;color:var(--gray2);">クイック引出</span>
         </a>
-        <!-- d. ウォレット -->
-        <button class="smenu-fixed-btn" onclick="openWalletModal()" data-hint="PayPayなど決済アプリに直接ジャンプできます">
-          <span class="smenu-fixed-icon">💳</span>
-          <span class="smenu-fixed-label">ウォレット</span>
-        </button>
+        <!-- d. ギフト（ポイント履歴） -->
+        <a class="smenu-fixed-btn" href="https://wallet.vaton.jp/point/point_logs" target="_self" rel="noopener" style="text-decoration:none;" data-hint="ギフトウォレットのポイント履歴を開きます">
+          <span class="smenu-fixed-icon">🎁</span>
+          <span class="smenu-fixed-label">ギフト</span>
+        </a>
         <!-- e. LM -->
         <button class="smenu-fixed-btn" onclick="window.open('https://notebooklm.google.com/notebook/c0000858-f49a-473e-8281-7b58f91ea63a?addSource=true','_blank')" data-hint="TikTok Liteのポイ活情報をNotebookLMで質問できます">
           <span class="smenu-fixed-icon">📓</span>
