@@ -547,6 +547,38 @@ class MainActivity : AppCompatActivity() {
         }
 
         @JavascriptInterface
+        fun openAppUpdate() {
+            runOnUiThread {
+                try {
+                    val apkUrl = "https://gift-wallet.pages.dev/dist/gift-wallet.apk"
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(apkUrl))
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    startActivity(intent)
+                    Toast.makeText(
+                        this@MainActivity,
+                        "最新APKのダウンロードを開きます",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } catch (_: Exception) {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "更新ページを開けませんでした",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+
+        @JavascriptInterface
+        fun getAppVersion(): String {
+            return try {
+                packageManager.getPackageInfo(packageName, 0).versionName ?: ""
+            } catch (_: Exception) {
+                ""
+            }
+        }
+
+        @JavascriptInterface
         fun setWalletBalance(points: String) {
             try {
                 val cleaned = points.trim()

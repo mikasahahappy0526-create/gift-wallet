@@ -2599,7 +2599,12 @@ function aiQuickSend(text){
             <span class="smenu-grid-icon">📶</span>
             <span class="smenu-grid-label">APN設定</span>
           </button>
+          <button class="smenu-grid-btn" onclick="requestAppUpdate();collapseSwipeMenu()" data-hint="最新のアプリ（APK）をダウンロードします">
+            <span class="smenu-grid-icon">⬆️</span>
+            <span class="smenu-grid-label">アプリ更新</span>
+          </button>
         </div>
+        <div id="smenuAppVer" style="text-align:center;font-size:10px;color:var(--gray);padding:2px 0 8px;font-family:'DM Mono',monospace;"></div>
       </div>
 
       <!-- 常時表示エリア（5ボタン） -->
@@ -2636,6 +2641,38 @@ function aiQuickSend(text){
 
 <!-- ===== スワイプメニュー・ウォレット・QR JS ===== -->
 <script>
+// ---------- アプリ更新 ----------
+const GW_APK_URL = 'https://gift-wallet.pages.dev/dist/gift-wallet.apk';
+function requestAppUpdate(){
+  try{
+    if(window.GiftWallet && typeof window.GiftWallet.openAppUpdate === 'function'){
+      window.GiftWallet.openAppUpdate();
+      try{ showToast && showToast('最新APKのダウンロードを開きます'); }catch(e){}
+      return;
+    }
+  }catch(e){}
+  try{
+    const a=document.createElement('a');
+    a.href=GW_APK_URL; a.target='_blank'; a.rel='noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+  }catch(e){
+    location.href=GW_APK_URL;
+  }
+}
+function fillSmenuAppVer(){
+  const el=document.getElementById('smenuAppVer');
+  if(!el) return;
+  let v='';
+  try{
+    if(window.GiftWallet && typeof window.GiftWallet.getAppVersion === 'function'){
+      v = String(window.GiftWallet.getAppVersion()||'').trim();
+    }
+  }catch(e){}
+  el.textContent = v ? ('アプリ ver ' + v) : '';
+}
+document.addEventListener('DOMContentLoaded', fillSmenuAppVer);
+setTimeout(fillSmenuAppVer, 400);
+
 // ---------- スワイプメニュー ----------
 (function(){
   const panel   = document.getElementById('swipePanel');
