@@ -61,8 +61,8 @@
   --bg:#080810;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;-webkit-tap-highlight-color:transparent;}
-body{font-family:"DotGothic16",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;}
+html,body{height:100%;-webkit-tap-highlight-color:transparent;overflow-x:hidden;}
+body{font-family:"DotGothic16",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;width:100%;margin:0 auto;overflow-x:hidden;}
 .page{display:none;min-height:100vh;padding-bottom:calc(236px + env(safe-area-inset-bottom));}
 .page.active{display:block;}
 #page-calendar.page.active{display:flex;flex-direction:column;}
@@ -162,14 +162,14 @@ body{font-family:"DotGothic16",sans-serif;background:var(--bg);color:var(--text)
 .f-btn-icon{font-size:14px;line-height:1;flex-shrink:0;}
 
 /* ===== カレンダー ===== */
-.cal-wrap{padding:10px 10px 0;flex:1;display:flex;flex-direction:column;min-height:0;}
-.cal-card{background:var(--navy2);border-radius:var(--r);overflow:hidden;border:1px solid var(--border);flex:1;display:flex;flex-direction:column;min-height:0;}
-.cal-dow{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--border);background:var(--navy3);flex-shrink:0;}
+.cal-wrap{padding:10px 10px 0;flex:1;display:flex;flex-direction:column;min-height:0;width:100%;max-width:100%;box-sizing:border-box;overflow:hidden;}
+.cal-card{background:var(--navy2);border-radius:var(--r);overflow:hidden;border:1px solid var(--border);flex:1;display:flex;flex-direction:column;min-height:0;min-width:0;width:100%;max-width:100%;}
+.cal-dow{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-bottom:1px solid var(--border);background:var(--navy3);flex-shrink:0;width:100%;}
 .dow-cell{padding:8px 0;text-align:center;font-size:10px;font-weight:700;color:var(--gray);}
 .dow-cell:first-child{color:var(--red);}
 .dow-cell:last-child{color:var(--blue);}
-.cal-cells{display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(var(--cal-weeks,5),minmax(0,1fr));flex:1;min-height:0;}
-.cal-cell{min-height:0;height:100%;border-bottom:1px solid rgba(37,37,53,.8);border-right:1px solid rgba(37,37,53,.8);padding:4px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--navy2);position:relative;transition:background .15s;}
+.cal-cells{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-template-rows:repeat(var(--cal-weeks,5),minmax(0,1fr));flex:1;min-height:0;width:100%;max-width:100%;}
+.cal-cell{min-height:0;min-width:0;width:100%;height:100%;border-bottom:1px solid rgba(37,37,53,.8);border-right:1px solid rgba(37,37,53,.8);padding:4px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--navy2);position:relative;transition:background .15s;overflow:hidden;box-sizing:border-box;}
 .cal-cell:nth-child(7n){border-right:none;}
 .cal-cell.other{opacity:.15;}
 .cal-cell.has-charge{background:rgba(212,168,67,.04);}
@@ -178,7 +178,7 @@ body{font-family:"DotGothic16",sans-serif;background:var(--bg);color:var(--text)
 .cal-cell.today .day-num{background:var(--gold);color:#000;font-weight:900;box-shadow:0 0 14px rgba(212,168,67,.6);}
 .cal-cell.sun .day-num{color:var(--red);}
 .cal-cell.sat .day-num{color:var(--blue);}
-.day-amt{font-size:12px;font-weight:800;color:var(--gold);text-align:center;line-height:1.3;padding:0 1px;white-space:pre-line;text-shadow:0 0 8px rgba(212,168,67,.3);font-family:"DM Mono",monospace;}
+.day-amt{font-size:clamp(7px,2.6vw,12px);font-weight:800;color:var(--gold);text-align:center;line-height:1.2;padding:0 1px;width:100%;max-width:100%;box-sizing:border-box;white-space:pre-line;overflow-wrap:anywhere;word-break:break-all;overflow:hidden;text-shadow:0 0 8px rgba(212,168,67,.3);font-family:"DM Mono",monospace;}
 .day-amt.m1{color:#ffd700;text-shadow:0 0 10px rgba(255,215,0,.5);}
 .day-amt.m2{color:#c0c8d0;text-shadow:0 0 8px rgba(192,200,208,.3);}
 .day-amt.m3{color:#cd7f32;text-shadow:0 0 8px rgba(205,127,50,.3);}
@@ -1836,7 +1836,7 @@ function renderCalendar(){
       const amt=document.createElement('div');
       const medal=medals[d];
       amt.className='day-amt'+(medal?' '+medal.c:'');
-      amt.textContent=(medal?medal.e+'\n':'')+fmt(dt2);
+      amt.textContent=(medal?medal.e+'\n':'')+fmtCal(dt2);
       c.appendChild(amt);
       c.style.cursor='pointer';
       c.addEventListener('click',()=>openDayModal(y,mo,d,ch));
@@ -1941,6 +1941,14 @@ function mc(cls){
   const dn=document.createElement('div');dn.className='day-num';c.appendChild(dn);return c;
 }
 function fmt(n){return Math.round(n).toLocaleString('ja-JP');}
+/** Compact amount for calendar cells so long numbers stay inside the phone width. */
+function fmtCal(n){
+  const v=Math.round(Math.abs(n));
+  const sign=n<0?'-':'';
+  if(v>=100000000)return sign+(v/100000000).toFixed(v%100000000===0?0:1).replace(/\.0$/,'')+'億';
+  if(v>=10000)return sign+(v/10000).toFixed(v%10000===0?0:(v>=100000?0:1)).replace(/\.0$/,'')+'万';
+  return sign+v.toLocaleString('ja-JP');
+}
 function fmtK(n){return n>=10000?(Math.round(n/1000)+'K'):Math.round(n).toString();}
 function showErr(msg){
   const b=document.getElementById('errBox');
