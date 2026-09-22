@@ -2575,6 +2575,10 @@ function aiQuickSend(text){
       <div class="smenu-expand" id="smenuExpand">
         <div class="smenu-expand-title">その他のメニュー</div>
         <div class="smenu-grid">
+          <button class="smenu-grid-btn" onclick="window.open('https://notebooklm.google.com/notebook/c0000858-f49a-473e-8281-7b58f91ea63a?addSource=true','_blank');collapseSwipeMenu()" data-hint="TikTok Liteのポイ活情報をNotebookLMで質問できます">
+            <span class="smenu-grid-icon">📓</span>
+            <span class="smenu-grid-label">TikTok LM</span>
+          </button>
           <button class="smenu-grid-btn" onclick="document.getElementById('calFileInput').click();collapseSwipeMenu()">
             <span class="smenu-grid-icon">🔴</span>
             <span class="smenu-grid-label">PayPay CSV</span>
@@ -2598,10 +2602,6 @@ function aiQuickSend(text){
           <button class="smenu-grid-btn" onclick="location.href='./apn.html';collapseSwipeMenu()">
             <span class="smenu-grid-icon">📶</span>
             <span class="smenu-grid-label">APN設定</span>
-          </button>
-          <button class="smenu-grid-btn" onclick="requestAppUpdate();collapseSwipeMenu()" data-hint="最新のアプリ（APK）をダウンロードします">
-            <span class="smenu-grid-icon">⬆️</span>
-            <span class="smenu-grid-label">アプリ更新</span>
           </button>
         </div>
         <div id="smenuAppVer" style="text-align:center;font-size:10px;color:var(--gray);padding:2px 0 8px;font-family:'DM Mono',monospace;"></div>
@@ -2629,10 +2629,10 @@ function aiQuickSend(text){
           <span class="smenu-fixed-icon">🎁</span>
           <span class="smenu-fixed-label">ギフト</span>
         </a>
-        <!-- e. LM -->
-        <button class="smenu-fixed-btn" onclick="window.open('https://notebooklm.google.com/notebook/c0000858-f49a-473e-8281-7b58f91ea63a?addSource=true','_blank')" data-hint="TikTok Liteのポイ活情報をNotebookLMで質問できます">
-          <span class="smenu-fixed-icon">📓</span>
-          <span class="smenu-fixed-label">TikTok LM</span>
+        <!-- e. アプリ更新（スワイプするだけで見える） -->
+        <button class="smenu-fixed-btn" onclick="requestAppUpdate()" data-hint="最新のアプリ（APK）をダウンロードします">
+          <span class="smenu-fixed-icon">⬆️</span>
+          <span class="smenu-fixed-label">アプリ更新</span>
         </button>
       </div>
     </div>
