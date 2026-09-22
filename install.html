@@ -3,43 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
 <title>ギフトウォレット インストール</title>
 <style>
-  :root { color-scheme: light; }
   body { margin:0; font-family: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
-         background:#0b0b0f; color:#f5f5f5; min-height:100vh; display:flex; align-items:center; justify-content:center; }
-  .card { width:min(420px, 92vw); background:#16161d; border:1px solid #2a2a35; border-radius:20px;
+         background:#0b0b0f; color:#f5f5f5; min-height:100dvh; display:flex; align-items:center; justify-content:center; padding:16px; box-sizing:border-box; }
+  .card { width:min(440px, 100%); background:#16161d; border:1px solid #2a2a35; border-radius:20px;
           padding:28px 22px 24px; box-shadow:0 12px 40px rgba(0,0,0,.35); text-align:center; }
   .icon { width:72px; height:72px; border-radius:16px; display:block; margin:0 auto 14px; background:#000; object-fit:cover; }
-  h1 { font-size:1.25rem; margin:0 0 6px; font-weight:700; }
-  .ver { opacity:.75; margin:0 0 18px; font-size:.95rem; }
+  h1 { font-size:1.3rem; margin:0 0 6px; font-weight:700; }
+  .ver { opacity:.75; margin:0 0 14px; font-size:.95rem; }
+  .warn { background:#3a2a10; border:1px solid #c9a227; color:#ffe9a8; border-radius:12px;
+          padding:12px 14px; text-align:left; font-size:.88rem; line-height:1.5; margin:0 0 16px; }
   a.btn { display:block; text-decoration:none; background:linear-gradient(135deg,#d4af37,#b8860b);
-          color:#111; font-weight:700; padding:14px 16px; border-radius:14px; font-size:1.05rem; }
+          color:#111; font-weight:700; padding:16px 16px; border-radius:14px; font-size:1.1rem; }
   a.btn:active { transform:scale(.98); }
-  ol { text-align:left; margin:18px 0 0; padding-left:1.2rem; line-height:1.55; opacity:.9; font-size:.9rem; }
-  .note { margin-top:14px; font-size:.8rem; opacity:.65; line-height:1.45; }
-  code { font-size:.78rem; word-break:break-all; }
+  ol { text-align:left; margin:18px 0 0; padding-left:1.25rem; line-height:1.6; opacity:.92; font-size:.92rem; }
+  .note { margin-top:14px; font-size:.78rem; opacity:.65; line-height:1.45; word-break:break-all; }
 </style>
 </head>
 <body>
   <main class="card">
-    <img class="icon" src="./favicon-192.png" alt="ギフトウォレット">
+    <img class="icon" src="./favicon-192.png" alt="ギフトウォレット" onerror="this.style.display='none'">
     <h1>ギフトウォレット</h1>
-    <p class="ver">Android APK · 1.3.8</p>
-    <a class="btn" id="dl" href="./dist/gift-wallet-1.3.8.apk" download="gift-wallet-1.3.8.apk">タップしてダウンロード</a>
+    <p class="ver">Android APK · 1.3.8（署名修正版）</p>
+    <p class="warn">重要: 以前入れたギフトウォレットが残っていると入りません。先にアプリアイコンを長押しして「アンインストール」してから、下のボタンで入れてください。</p>
+    <a class="btn" href="./dist/gift-wallet-1.3.8.apk" download="gift-wallet-1.3.8.apk">タップしてダウンロード</a>
     <ol>
-      <li>上のボタンで APK を保存</li>
-      <li>通知または「ダウンロード」から開く</li>
-      <li>「提供元不明のアプリ」を許可してインストール</li>
-      <li>前の版が入っているときは一度アンインストールしてから入れる</li>
+      <li>上のボタンで APK を保存する</li>
+      <li>通知、または「ダウンロード」フォルダから開く</li>
+      <li>「提供元不明のアプリ」を許可する</li>
+      <li>「インストール」をタップする</li>
     </ol>
-    <p class="note">うまくいかないとき:<br><code>https://gift-wallet.pages.dev/dist/gift-wallet-1.3.8.apk</code></p>
+    <p class="note">直接リンク:<br>https://gift-wallet.pages.dev/dist/gift-wallet-1.3.8.apk</p>
   </main>
-  <script>
-    // Force a real navigation download (helps some Android WebViews / QR browsers)
-    document.getElementById('dl').addEventListener('click', function (e) {
-      // keep default; also set location as fallback after short delay if needed
-    });
-  </script>
 </body>
 </html>
