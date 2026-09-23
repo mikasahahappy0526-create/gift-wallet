@@ -2638,7 +2638,7 @@ function aiQuickSend(text){
           <span class="smenu-fixed-label">ギフト</span>
         </a>
         <!-- e. アプリ更新（スワイプするだけで見える） -->
-        <button class="smenu-fixed-btn" onclick="requestAppUpdate()" data-hint="最新のアプリ（APK）をダウンロードします">
+        <button class="smenu-fixed-btn" onclick="requestAppUpdate()" data-hint="インストール案内ページを開きます（ここから最新APKを入れられます）">
           <span class="smenu-fixed-icon">⬆️</span>
           <span class="smenu-fixed-label">アプリ更新</span>
         </button>
@@ -2649,22 +2649,24 @@ function aiQuickSend(text){
 
 <!-- ===== スワイプメニュー・ウォレット・QR JS ===== -->
 <script>
-// ---------- アプリ更新 ----------
-const GW_APK_URL = 'https://gift-wallet.pages.dev/dist/gift-wallet.apk';
+// ---------- アプリ更新（直APKではなく案内ページへ） ----------
+const GW_INSTALL_URL = 'https://gift-wallet.pages.dev/install';
 function requestAppUpdate(){
+  // リモートの index.html を読む現行APKでも、直APKではなく案内ページへ行く。
+  // （ネイティブ橋は次のAPK向けに同様のURLへ揃えてある）
+  try{ showToast && showToast('インストール案内を開きます'); }catch(e){}
   try{
-    if(window.GiftWallet && typeof window.GiftWallet.openAppUpdate === 'function'){
-      window.GiftWallet.openAppUpdate();
-      try{ showToast && showToast('最新APKのダウンロードを開きます'); }catch(e){}
-      return;
-    }
-  }catch(e){}
-  try{
-    const a=document.createElement('a');
-    a.href=GW_APK_URL; a.target='_blank'; a.rel='noopener';
-    document.body.appendChild(a); a.click(); a.remove();
+    location.href = GW_INSTALL_URL;
   }catch(e){
-    location.href=GW_APK_URL;
+    try{
+      if(window.GiftWallet && typeof window.GiftWallet.openAppUpdate === 'function'){
+        window.GiftWallet.openAppUpdate();
+        return;
+      }
+    }catch(e2){}
+    const a=document.createElement('a');
+    a.href=GW_INSTALL_URL; a.target='_self'; a.rel='noopener';
+    document.body.appendChild(a); a.click(); a.remove();
   }
 }
 function fillSmenuAppVer(){

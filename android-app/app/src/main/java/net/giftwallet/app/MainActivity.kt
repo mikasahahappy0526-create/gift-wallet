@@ -550,13 +550,12 @@ class MainActivity : AppCompatActivity() {
         fun openAppUpdate() {
             runOnUiThread {
                 try {
-                    val apkUrl = "https://gift-wallet.pages.dev/dist/gift-wallet.apk"
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(apkUrl))
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    startActivity(intent)
+                    // 直APKではなくインストール案内ページへ（説明→ダウンロード）
+                    val installUrl = "https://gift-wallet.pages.dev/install"
+                    webView.loadUrl(installUrl)
                     Toast.makeText(
                         this@MainActivity,
-                        "最新APKのダウンロードを開きます",
+                        "インストール案内を開きます",
                         Toast.LENGTH_SHORT
                     ).show()
                 } catch (_: Exception) {
