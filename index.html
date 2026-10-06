@@ -353,7 +353,8 @@ tr{cursor:pointer;}
 #swipePanel.is-open .smenu-more-hint .arr{transform:rotate(180deg);}
 /* 展開エリア */
 .smenu-expand{overflow:hidden;transition:max-height .32s cubic-bezier(.34,1.1,.64,1),opacity .28s;max-height:0;opacity:0;padding:0 14px;}
-.smenu-expand.open{max-height:280px;opacity:1;padding:0 14px 6px;}
+.smenu-expand.open{max-height:min(460px,68vh);overflow-y:auto;opacity:1;padding:0 14px 6px;}
+.smenu-group-title{font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.06em;padding:4px 2px 5px;}
 .smenu-expand-title{font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.08em;padding:8px 0 6px;border-top:1px solid var(--border);}
 .smenu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding-bottom:8px;}
 .smenu-grid-btn{display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--gray5);border:1.5px solid var(--border);border-radius:14px;padding:10px 4px 8px;cursor:pointer;transition:.15s;}
@@ -2591,15 +2592,15 @@ function aiQuickSend(text){
       <!-- 展開エリア -->
       <div class="smenu-expand" id="smenuExpand">
         <div class="smenu-expand-title">その他のメニュー</div>
+        <div class="smenu-group-title">取り込む</div>
         <div class="smenu-grid">
-          <button class="smenu-grid-btn" onclick="window.open('https://notebooklm.google.com/notebook/c0000858-f49a-473e-8281-7b58f91ea63a?addSource=true','_blank');collapseSwipeMenu()" data-hint="TikTok Liteのポイ活情報をNotebookLMで質問できます">
-            <span class="smenu-grid-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11a3 3 0 013 3v13H8a3 3 0 01-3-3z"/><path d="M5 17a3 3 0 013-3h11"/><path d="M9 8h6"/></svg></span>
-            <span class="smenu-grid-label">TikTok LM</span>
-          </button>
           <button class="smenu-grid-btn" onclick="document.getElementById('calFileInput').click();collapseSwipeMenu()">
             <span class="smenu-grid-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg></span>
             <span class="smenu-grid-label">PayPay CSV</span>
           </button>
+        </div>
+        <div class="smenu-group-title">見る</div>
+        <div class="smenu-grid">
           <button class="smenu-grid-btn" id="smenu-tab-analytics" onclick="switchTab('analytics');collapseSwipeMenu()">
             <span class="smenu-grid-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"/><path d="M7 16v-5M12 16V6M17 16v-8"/></svg></span>
             <span class="smenu-grid-label">分析グラフ</span>
@@ -2608,14 +2609,24 @@ function aiQuickSend(text){
             <span class="smenu-grid-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></span>
             <span class="smenu-grid-label">支出内訳</span>
           </button>
+        </div>
+        <div class="smenu-group-title">調べる</div>
+        <div class="smenu-grid">
           <button class="smenu-grid-btn" onclick="location.href='./guide.html';collapseSwipeMenu()">
             <span class="smenu-grid-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 015 .5c0 1.7-2.5 2-2.5 4"/><path d="M12 17.5h.01"/></svg></span>
             <span class="smenu-grid-label">使い方</span>
+          </button>
+          <button class="smenu-grid-btn" onclick="window.open('https://notebooklm.google.com/notebook/c0000858-f49a-473e-8281-7b58f91ea63a?addSource=true','_blank');collapseSwipeMenu()" data-hint="TikTok Liteのポイ活情報をNotebookLMで質問できます">
+            <span class="smenu-grid-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11a3 3 0 013 3v13H8a3 3 0 01-3-3z"/><path d="M5 17a3 3 0 013-3h11"/><path d="M9 8h6"/></svg></span>
+            <span class="smenu-grid-label">TikTok LM</span>
           </button>
           <button class="smenu-grid-btn" onclick="location.href='./update_notes.html';collapseSwipeMenu()">
             <span class="smenu-grid-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg></span>
             <span class="smenu-grid-label">大幅アップ<br>デート</span>
           </button>
+        </div>
+        <div class="smenu-group-title">設定する</div>
+        <div class="smenu-grid">
           <button class="smenu-grid-btn" onclick="location.href='./apn.html';collapseSwipeMenu()">
             <span class="smenu-grid-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20v-3M10 20v-7M15 20v-11M20 20V4"/></svg></span>
             <span class="smenu-grid-label">APN設定</span>
