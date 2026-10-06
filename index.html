@@ -341,7 +341,16 @@ tr{cursor:pointer;}
 .smenu-fixed-btn:active{background:var(--gray4);}
 .smenu-fixed-icon{font-size:22px;line-height:1;}
 .smenu-fixed-label{font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.03em;}
+.smenu-fixed-btn{position:relative;min-height:48px;min-width:48px;}
 .smenu-fixed-btn.active .smenu-fixed-label{color:var(--gold);}
+.smenu-fixed-btn.active::before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:26px;height:3px;border-radius:0 0 3px 3px;background:var(--gold);}
+.smenu-fixed-btn.active{background:rgba(212,168,67,.10);}
+.smenu-grid-btn{min-height:56px;}
+.smenu-grid-btn.active{border-color:var(--gold);background:rgba(212,168,67,.12);}
+.smenu-grid-btn.active .smenu-grid-label{color:var(--gold);}
+.smenu-more-hint{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--gold);margin-top:6px;letter-spacing:.04em;}
+.smenu-more-hint .arr{display:inline-block;transition:transform .25s;}
+#swipePanel.is-open .smenu-more-hint .arr{transform:rotate(180deg);}
 /* 展開エリア */
 .smenu-expand{overflow:hidden;transition:max-height .32s cubic-bezier(.34,1.1,.64,1),opacity .28s;max-height:0;opacity:0;padding:0 14px;}
 .smenu-expand.open{max-height:280px;opacity:1;padding:0 14px 6px;}
@@ -2576,7 +2585,7 @@ function aiQuickSend(text){
       <!-- ドラッグハンドル（タップ領域を広く） -->
       <div id="smenuHandle" style="display:flex;flex-direction:column;align-items:center;padding:14px 0 8px;cursor:pointer;touch-action:none;user-select:none;">
         <div class="smenu-handle"></div>
-        <div style="font-size:9px;color:var(--text2);margin-top:5px;letter-spacing:.05em;">タップまたは上にスワイプ</div>
+        <div class="smenu-more-hint"><span class="smenu-more-label">その他のメニュー</span><span class="arr">▲</span></div>
       </div>
 
       <!-- 展開エリア -->
@@ -2618,7 +2627,7 @@ function aiQuickSend(text){
       <!-- 常時表示エリア（5ボタン） -->
       <div class="smenu-fixed" style="padding-bottom:max(10px,env(safe-area-inset-bottom));">
         <!-- a. ホーム -->
-        <button class="smenu-fixed-btn" id="tab-calendar" onclick="switchTab('calendar')" data-hint="カレンダー画面に戻ります">
+        <button class="smenu-fixed-btn active" id="tab-calendar" onclick="switchTab('calendar')" data-hint="カレンダー画面に戻ります">
           <span class="smenu-fixed-icon">🏠</span>
           <span class="smenu-fixed-label">ホーム</span>
         </button>
@@ -2698,12 +2707,16 @@ setTimeout(fillSmenuAppVer, 400);
     expanded = true;
     expand.classList.add('open');
     overlay.classList.add('open');
+    panel.classList.add('is-open');
+    var ml=panel.querySelector('.smenu-more-label'); if(ml) ml.textContent='閉じる';
     if(window.updateHintToggleUI) window.updateHintToggleUI();
   }
   function closeSwipeMenu(){
     expanded = false;
     expand.classList.remove('open');
     overlay.classList.remove('open');
+    panel.classList.remove('is-open');
+    var ml=panel.querySelector('.smenu-more-label'); if(ml) ml.textContent='その他のメニュー';
   }
   window.collapseSwipeMenu = closeSwipeMenu;
 
