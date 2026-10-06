@@ -339,7 +339,7 @@ tr{cursor:pointer;}
 .smenu-fixed{display:flex;align-items:center;justify-content:space-around;padding:4px 10px 10px;gap:6px;}
 .smenu-fixed-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;flex:1;padding:6px 4px;border-radius:12px;transition:.15s;}
 .smenu-fixed-btn:active{background:var(--gray4);}
-.smenu-fixed-icon{font-size:22px;line-height:1;}
+.smenu-fixed-icon{font-size:22px;line-height:1;color:var(--gold);display:flex;}
 .smenu-fixed-label{font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.03em;}
 .smenu-fixed-btn{position:relative;min-height:48px;min-width:48px;}
 .smenu-fixed-btn.active .smenu-fixed-label{color:var(--gold);}
@@ -358,7 +358,7 @@ tr{cursor:pointer;}
 .smenu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding-bottom:8px;}
 .smenu-grid-btn{display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--gray5);border:1.5px solid var(--border);border-radius:14px;padding:10px 4px 8px;cursor:pointer;transition:.15s;}
 .smenu-grid-btn:active{background:var(--gray4);border-color:var(--gold);}
-.smenu-grid-icon{font-size:24px;}
+.smenu-grid-icon{font-size:24px;color:var(--gold);display:flex;}
 .smenu-grid-label{font-size:10px;font-weight:700;color:var(--text3);text-align:center;line-height:1.3;}
 
 /* ===== 年月ピッカー ===== */
@@ -2593,31 +2593,31 @@ function aiQuickSend(text){
         <div class="smenu-expand-title">その他のメニュー</div>
         <div class="smenu-grid">
           <button class="smenu-grid-btn" onclick="window.open('https://notebooklm.google.com/notebook/c0000858-f49a-473e-8281-7b58f91ea63a?addSource=true','_blank');collapseSwipeMenu()" data-hint="TikTok Liteのポイ活情報をNotebookLMで質問できます">
-            <span class="smenu-grid-icon">📓</span>
+            <span class="smenu-grid-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11a3 3 0 013 3v13H8a3 3 0 01-3-3z"/><path d="M5 17a3 3 0 013-3h11"/><path d="M9 8h6"/></svg></span>
             <span class="smenu-grid-label">TikTok LM</span>
           </button>
           <button class="smenu-grid-btn" onclick="document.getElementById('calFileInput').click();collapseSwipeMenu()">
-            <span class="smenu-grid-icon">🔴</span>
+            <span class="smenu-grid-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg></span>
             <span class="smenu-grid-label">PayPay CSV</span>
           </button>
           <button class="smenu-grid-btn" id="smenu-tab-analytics" onclick="switchTab('analytics');collapseSwipeMenu()">
-            <span class="smenu-grid-icon">📊</span>
+            <span class="smenu-grid-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"/><path d="M7 16v-5M12 16V6M17 16v-8"/></svg></span>
             <span class="smenu-grid-label">分析グラフ</span>
           </button>
           <button class="smenu-grid-btn" onclick="goPage('expense');collapseSwipeMenu()">
-            <span class="smenu-grid-icon">🧾</span>
+            <span class="smenu-grid-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></span>
             <span class="smenu-grid-label">支出内訳</span>
           </button>
           <button class="smenu-grid-btn" onclick="location.href='./guide.html';collapseSwipeMenu()">
-            <span class="smenu-grid-icon">❓</span>
+            <span class="smenu-grid-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 015 .5c0 1.7-2.5 2-2.5 4"/><path d="M12 17.5h.01"/></svg></span>
             <span class="smenu-grid-label">使い方</span>
           </button>
           <button class="smenu-grid-btn" onclick="location.href='./update_notes.html';collapseSwipeMenu()">
-            <span class="smenu-grid-icon">🆕</span>
+            <span class="smenu-grid-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg></span>
             <span class="smenu-grid-label">大幅アップ<br>デート</span>
           </button>
           <button class="smenu-grid-btn" onclick="location.href='./apn.html';collapseSwipeMenu()">
-            <span class="smenu-grid-icon">📶</span>
+            <span class="smenu-grid-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20v-3M10 20v-7M15 20v-11M20 20V4"/></svg></span>
             <span class="smenu-grid-label">APN設定</span>
           </button>
         </div>
@@ -2628,27 +2628,27 @@ function aiQuickSend(text){
       <div class="smenu-fixed" style="padding-bottom:max(10px,env(safe-area-inset-bottom));">
         <!-- a. ホーム -->
         <button class="smenu-fixed-btn active" id="tab-calendar" onclick="switchTab('calendar')" data-hint="カレンダー画面に戻ります">
-          <span class="smenu-fixed-icon">🏠</span>
+          <span class="smenu-fixed-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></span>
           <span class="smenu-fixed-label">ホーム</span>
         </button>
         <!-- b. エラーUSERID -->
         <a class="smenu-fixed-btn" id="tab-error-userid" href="./error-userids.html" style="text-decoration:none;" data-hint="エラーUSERID一覧を開きます">
-          <span class="smenu-fixed-icon">⚠️</span>
+          <span class="smenu-fixed-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v5"/><path d="M12 18h.01"/></svg></span>
           <span class="smenu-fixed-label">エラーID</span>
         </a>
         <!-- c. Cushin クイック引出（中央・大きめ） — app opens via GiftWallet.openCushinQuick(); never CSV -->
         <a href="https://cushintools.net/dashboard/quick-withdraw#auto-new-session" target="_self" rel="noopener" data-gw-cushin="1" onclick="try{if(window.GiftWallet&&window.GiftWallet.openCushinQuick){event.preventDefault();window.GiftWallet.openCushinQuick();}}catch(e){}" style="display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;flex:0 0 auto;padding:0 6px;text-decoration:none;" data-hint="Cushinのクイック引き出しを開きます">
-          <span style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--gold-h),var(--gold));display:flex;align-items:center;justify-content:center;box-shadow:0 3px 14px rgba(150,90,0,.3);margin-top:-18px;font-size:26px;line-height:1;">⚡</span>
+          <span style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--gold-h),var(--gold));display:flex;align-items:center;justify-content:center;box-shadow:0 3px 14px rgba(150,90,0,.3);margin-top:-18px;font-size:26px;line-height:1;"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#1a1206" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span>
           <span style="font-size:10px;font-weight:700;color:var(--gray2);">クイック引出</span>
         </a>
         <!-- d. ギフト（ポイント履歴） -->
         <a class="smenu-fixed-btn" href="https://wallet.vaton.jp/point/point_logs" target="_self" rel="noopener" style="text-decoration:none;" data-hint="ギフトウォレットのポイント履歴を開きます">
-          <span class="smenu-fixed-icon">🎁</span>
+          <span class="smenu-fixed-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M5 12v9h14v-9"/><path d="M12 8v13"/><path d="M12 8C10 4 6 4 7 7c.5 1 3 1 5 1zM12 8c2-4 6-4 5-1-.5 1-3 1-5 1z"/></svg></span>
           <span class="smenu-fixed-label">ギフト</span>
         </a>
         <!-- e. アプリ更新（スワイプするだけで見える） -->
         <button class="smenu-fixed-btn" onclick="requestAppUpdate()" data-hint="インストール案内ページを開きます（ここから最新APKを入れられます）">
-          <span class="smenu-fixed-icon">⬆️</span>
+          <span class="smenu-fixed-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3"/></svg></span>
           <span class="smenu-fixed-label">アプリ更新</span>
         </button>
       </div>
