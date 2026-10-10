@@ -170,7 +170,7 @@ final class WebViewController: UIViewController {
 
     private func maybeInjectHelpers(url: String?) {
         guard let url, !url.isEmpty else { return }
-        if url.contains("cushintools.net") {
+        if url.contains("cushintools.net") || url.contains("toklab.app") {
             let isQuick = url.contains("/dashboard/quick-withdraw") || url.contains("auto-new-session")
             evaluateBundledJS(named: isQuick ? "helper-full" : "helper-base")
         } else if url.contains("wallet.vaton.jp") {

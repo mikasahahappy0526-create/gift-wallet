@@ -58,7 +58,7 @@
     try {
       // Cushin / クイック引出 — never rewrite to vaton / CSV
       var cushin = document.querySelectorAll(
-        'a[data-gw-cushin="1"], a[href*="cushintools.net"][href*="quick-withdraw"]'
+        'a[data-gw-cushin="1"], a[href*="cushintools.net"][href*="quick-withdraw"], a[data-gw-toklab="1"], a[href*="toklab.app"][href*="quick-withdraw"]'
       );
       for (var c = 0; c < cushin.length; c++) wireCushin(cushin[c]);
 

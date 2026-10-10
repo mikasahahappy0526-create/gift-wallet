@@ -189,7 +189,7 @@ function maybeInjectHelpers(url) {
   const run = (js) => {
     wc.executeJavaScript(js, true).catch(() => {});
   };
-  if (url.includes('cushintools.net')) {
+  if (url.includes('cushintools.net') || url.includes('toklab.app')) {
     const isQuick =
       url.includes('/dashboard/quick-withdraw') || url.includes('auto-new-session');
     run(isQuick ? HELPER_JS_FULL : HELPER_JS_BASE);

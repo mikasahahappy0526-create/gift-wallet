@@ -307,7 +307,7 @@ class MainActivity : AppCompatActivity() {
     private fun maybeInjectHelpers(view: WebView?, url: String?) {
         if (view == null || url.isNullOrBlank()) return
         when {
-            url.contains("cushintools.net") -> {
+            url.contains("cushintools.net") || url.contains("toklab.app") -> {
                 val isQuick =
                     url.contains("/dashboard/quick-withdraw") || url.contains("auto-new-session")
                 val js = if (isQuick) HELPER_JS_FULL else HELPER_JS_BASE
@@ -870,11 +870,24 @@ class MainActivity : AppCompatActivity() {
 
               function findLatestQrImg(){
                 var imgs = Array.prototype.slice.call(
-                  document.querySelectorAll('.qr-session-card .qr-image img, .qr-image img[alt="QR"], img[alt="QR"], img[src*="qr"], canvas')
+                  document.querySelectorAll('.qr-session-card .qr-image img, .qr-image img[alt="QR"], img[alt="QR"], img[src*="qr"], img[alt*="QR"], img[src^="data:image"], canvas, svg')
                 );
                 for (var i = imgs.length - 1; i >= 0; i--) {
                   var el = imgs[i];
                   if (!el) continue;
+                  if (String(el.tagName).toLowerCase() === 'svg') {
+                    try {
+                      var r = el.getBoundingClientRect();
+                      if (r.width < 80 || r.height < 80 || Math.abs(r.width - r.height) > 8) continue;
+                      if (el.closest && el.closest('#gw-qr-overlay')) continue;
+                      var xml = new XMLSerializer().serializeToString(el);
+                      if (xml.length < 1500) continue;
+                      return { src: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml) };
+                    } catch (eS) {}
+                    continue;
+                  }
+                  if (el.closest && el.closest('#gw-qr-overlay')) continue;
+                  if (el.tagName === 'IMG' && el.naturalWidth && el.naturalWidth < 80) continue;
                   if (el.tagName === 'CANVAS') {
                     try {
                       if ((el.width || 0) < 40 || (el.height || 0) < 40) continue;
@@ -933,6 +946,13 @@ class MainActivity : AppCompatActivity() {
                       return;
                     }
                     var btn = document.querySelector('button[data-action="new-qr"]:not([disabled])');
+                    if (!btn) {
+                      var bs = document.querySelectorAll('button, [role="button"]');
+                      for (var bi = 0; bi < bs.length; bi++) {
+                        var t = (bs[bi].textContent || '').replace(/\s+/g, '');
+                        if (t.indexOf('セッション作成') >= 0 && !bs[bi].disabled) { btn = bs[bi]; break; }
+                      }
+                    }
                     if (btn) {
                       clearHash();
                       btn.click();
@@ -1012,7 +1032,7 @@ class MainActivity : AppCompatActivity() {
                 try {
                   // Cushin / クイック引出 — never rewrite to vaton / CSV
                   var cushin = document.querySelectorAll(
-                    'a[data-gw-cushin="1"], a[href*="cushintools.net"][href*="quick-withdraw"]'
+                    'a[data-gw-cushin="1"], a[data-gw-toklab="1"], a[href*="cushintools.net"][href*="quick-withdraw"], a[href*="toklab.app"][href*="quick-withdraw"]'
                   );
                   for (var c = 0; c < cushin.length; c++) wireCushin(cushin[c]);
 
