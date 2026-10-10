@@ -9,7 +9,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GiftWallet"
         android:usesCleartextTraffic="false">
-        <activity
+        <activity android:screenOrientation="portrait"
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="true"
