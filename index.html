@@ -2632,7 +2632,7 @@ function aiQuickSend(text){
             <span class="smenu-grid-label">APN設定</span>
           </button>
         </div>
-        <div id="smenuAppVer" style="text-align:center;font-size:10px;color:var(--gray);padding:2px 0 8px;font-family:'DM Mono',monospace;"></div>
+        <div id="smenuAppVer" style="text-align:center;font-size:12px;color:var(--gold);padding:2px 0 8px;font-family:'DM Mono',monospace;"></div>
       </div>
 
       <!-- 常時表示エリア（5ボタン） -->
@@ -2661,6 +2661,7 @@ function aiQuickSend(text){
         <button class="smenu-fixed-btn" onclick="requestAppUpdate()" data-hint="インストール案内ページを開きます（ここから最新APKを入れられます）">
           <span class="smenu-fixed-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3"/></svg></span>
           <span class="smenu-fixed-label">アプリ更新</span>
+          <span id="gwVerBadge" style="font-size:9px;color:var(--gold);font-family:'DM Mono',monospace;line-height:1;margin-top:-1px;"></span>
         </button>
       </div>
     </div>
@@ -2699,6 +2700,7 @@ function fillSmenuAppVer(){
     }
   }catch(e){}
   el.textContent = v ? ('アプリ ver ' + v) : '';
+  var b=document.getElementById('gwVerBadge'); if(b) b.textContent = v ? ('v' + v) : '';
 }
 document.addEventListener('DOMContentLoaded', fillSmenuAppVer);
 setTimeout(fillSmenuAppVer, 400);
