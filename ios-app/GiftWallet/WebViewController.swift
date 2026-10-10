@@ -4,7 +4,7 @@ import WebKit
 final class WebViewController: UIViewController {
     static let homeURL = URL(string: "https://gift-wallet.pages.dev/")!
     static let homeURLNoSplash = URL(string: "https://gift-wallet.pages.dev/?nosplash=1")!
-    static let cushinQuickURL = URL(string: "https://cushintools.net/dashboard/quick-withdraw#auto-new-session")!
+    static let cushinQuickURL = URL(string: "https://toklab.app/dashboard/quick-withdraw")!
     static let fixedCsvName = "ポイント履歴_今月.csv"
 
     private var webView: WKWebView!

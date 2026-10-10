@@ -15,7 +15,7 @@ const { TextDecoder } = require('util');
 const HOME_URL = 'https://gift-wallet.pages.dev/';
 const HOME_URL_NOSPLASH = 'https://gift-wallet.pages.dev/?nosplash=1';
 const CUSHIN_QUICK_URL =
-  'https://cushintools.net/dashboard/quick-withdraw#auto-new-session';
+  'https://toklab.app/dashboard/quick-withdraw';
 const FIXED_CSV_NAME = 'ポイント履歴_今月.csv';
 
 const INJECT_DIR = path.join(__dirname, 'inject');

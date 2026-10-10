@@ -658,7 +658,7 @@ class MainActivity : AppCompatActivity() {
         private const val POINT_LOGS_AUTO_URL =
             "https://wallet.vaton.jp/point/point_logs#gw-auto-csv"
         private const val CUSHIN_QUICK_URL =
-            "https://cushintools.net/dashboard/quick-withdraw#auto-new-session"
+            "https://toklab.app/dashboard/quick-withdraw"
         private const val FIXED_CSV_NAME = "ポイント履歴_今月.csv"
 
         private val HELPER_JS_BASE = """
