@@ -20,32 +20,39 @@
 
   function scrapeBalance(){
     try {
+      var NUM = /([0-9]{1,3}(?:,[0-9]{3})+|[0-9]{3,})\s*(?:ポイント|pt|P)/;
+      var LABEL = /(保有ポイント|所持ポイント|ポイント残高|現在のポイント|利用可能|残高)/;
+      var ROW = /(20[0-9]{2}[\/\-年.][0-9]{1,2}|[0-9]{1,2}[\/月][0-9]{1,2}|[+＋\-−－]\s*[0-9])/;
+      function txt(el){ return ((el && (el.innerText || el.textContent)) || '').replace(/\s+/g, ' ').trim(); }
+      function num(t){ var m = String(t || '').match(NUM); if (!m) return null; var n = parseInt(m[1].replace(/,/g, ''), 10); return isNaN(n) ? null : String(n); }
       var best = null;
-      var bestVal = -1;
-      // Prefer explicit large point labels: "270,720 ポイント"
-      var body = (document.body && (document.body.innerText || document.body.textContent)) || '';
-      var re = /([0-9]{1,3}(?:,[0-9]{3})+|[0-9]{4,})\s*ポイント/g;
-      var m;
-      while ((m = re.exec(body)) !== null) {
-        var n = parseInt(String(m[1]).replace(/,/g, ''), 10);
-        if (isNaN(n) || n < 0) continue;
-        // Ignore tiny labels; keep the largest plausible balance
-        if (n > bestVal) { bestVal = n; best = String(n); }
+      // 1) number next to a balance label
+      var all = document.body ? document.body.getElementsByTagName('*') : [];
+      for (var i = 0; i < all.length && !best; i++) {
+        var el = all[i];
+        var own = '';
+        for (var c = el.firstChild; c; c = c.nextSibling) if (c.nodeType === 3) own += c.nodeValue;
+        if (!LABEL.test(own) || own.length > 40) continue;
+        var cands = [el, el.nextElementSibling, el.parentElement, el.parentElement && el.parentElement.nextElementSibling];
+        for (var k = 0; k < cands.length && !best; k++) {
+          var t = txt(cands[k]);
+          if (!t || t.length > 120 || ROW.test(t)) continue;
+          best = num(t);
+        }
       }
-      // Also scan prominent numeric nodes
-      var nodes = document.querySelectorAll('h1,h2,h3,strong,b,[class*="point"],[class*="Point"],[class*="balance"],[data-testid]');
-      for (var i = 0; i < nodes.length; i++) {
-        var t = (nodes[i].innerText || nodes[i].textContent || '').replace(/\s+/g, ' ').trim();
-        var mm = t.match(/^([0-9]{1,3}(?:,[0-9]{3})+|[0-9]{4,})\s*ポイント?$/);
-        if (!mm) mm = t.match(/([0-9]{1,3}(?:,[0-9]{3})+)\s*ポイント/);
-        if (!mm) continue;
-        var nn = parseInt(String(mm[1]).replace(/,/g, ''), 10);
-        if (!isNaN(nn) && nn > bestVal) { bestVal = nn; best = String(nn); }
+      // 2) first "N ポイント" in document order, skipping history rows
+      if (!best) {
+        var lines = ((document.body && (document.body.innerText || document.body.textContent)) || '').split(/\n+/);
+        for (var j = 0; j < lines.length && !best; j++) {
+          if (ROW.test(lines[j])) continue;
+          best = num(lines[j]);
+        }
       }
       if (best) saveBalance(best);
       return best;
     } catch (e) { return null; }
   }
+
   window.__gwScrapeBalance = scrapeBalance;
 
   function tick(){
